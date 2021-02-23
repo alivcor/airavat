@@ -1,0 +1,77 @@
+{
+  "jobId": 1,
+  "stageIds": [
+    1
+  ],
+  "numStages": 1,
+  "stageInfo": [
+    {
+      "stageId": 1,
+      "details": "org.apache.spark.sql.Dataset.show(Dataset.scala:714)\ncom.iresium.airavat.AiravatApp$.delayedEndpoint$com$iresium$airavat$AiravatApp$1(AiravatApp.scala:30)\ncom.iresium.airavat.AiravatApp$delayedInit$body.apply(AiravatApp.scala:18)\nscala.Function0$class.apply$mcV$sp(Function0.scala:40)\nscala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)\nscala.App$$anonfun$main$1.apply(App.scala:76)\nscala.App$$anonfun$main$1.apply(App.scala:76)\nscala.collection.immutable.List.foreach(List.scala:381)\nscala.collection.generic.TraversableForwarder$class.foreach(TraversableForwarder.scala:35)\nscala.App$class.main(App.scala:76)\ncom.iresium.airavat.AiravatApp$.main(AiravatApp.scala:18)\ncom.iresium.airavat.AiravatApp.main(AiravatApp.scala)",
+      "numTasks": 1
+    }
+  ],
+  "rddInfo": [
+    {
+      "id": 12,
+      "memSize": 0,
+      "diskSize": 0,
+      "numPartitions": 1,
+      "storageLevel": {
+        "org$apache$spark$storage$StorageLevel$$_useDisk": false,
+        "org$apache$spark$storage$StorageLevel$$_useMemory": false,
+        "org$apache$spark$storage$StorageLevel$$_useOffHeap": false,
+        "org$apache$spark$storage$StorageLevel$$_deserialized": false,
+        "org$apache$spark$storage$StorageLevel$$_replication": 1
+      }
+    },
+    {
+      "id": 10,
+      "memSize": 0,
+      "diskSize": 0,
+      "numPartitions": 1,
+      "storageLevel": {
+        "org$apache$spark$storage$StorageLevel$$_useDisk": false,
+        "org$apache$spark$storage$StorageLevel$$_useMemory": false,
+        "org$apache$spark$storage$StorageLevel$$_useOffHeap": false,
+        "org$apache$spark$storage$StorageLevel$$_deserialized": false,
+        "org$apache$spark$storage$StorageLevel$$_replication": 1
+      }
+    },
+    {
+      "id": 9,
+      "memSize": 0,
+      "diskSize": 0,
+      "numPartitions": 1,
+      "storageLevel": {
+        "org$apache$spark$storage$StorageLevel$$_useDisk": false,
+        "org$apache$spark$storage$StorageLevel$$_useMemory": false,
+        "org$apache$spark$storage$StorageLevel$$_useOffHeap": false,
+        "org$apache$spark$storage$StorageLevel$$_deserialized": false,
+        "org$apache$spark$storage$StorageLevel$$_replication": 1
+      }
+    },
+    {
+      "id": 11,
+      "memSize": 0,
+      "diskSize": 0,
+      "numPartitions": 1,
+      "storageLevel": {
+        "org$apache$spark$storage$StorageLevel$$_useDisk": false,
+        "org$apache$spark$storage$StorageLevel$$_useMemory": false,
+        "org$apache$spark$storage$StorageLevel$$_useOffHeap": false,
+        "org$apache$spark$storage$StorageLevel$$_deserialized": false,
+        "org$apache$spark$storage$StorageLevel$$_replication": 1
+      }
+    }
+  ],
+  "numTasks": 0,
+  "totalDuration": 131,
+  "totalDiskSpill": 0,
+  "totalBytesRead": 65536,
+  "totalBytesWritten": 0,
+  "totalResultSize": 8826,
+  "totalShuffleReadBytes": 0,
+  "totalShuffleWriteBytes": 1,
+  "timestamp": "2021-02-22T17:06:20.756"
+}
