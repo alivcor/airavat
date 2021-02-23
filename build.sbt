@@ -3,10 +3,11 @@ name := "airavat"
 version := "0.1"
 
 scalaVersion := "2.11.5"
+val sparkVersion = "2.4.7"
 
-libraryDependencies += "org.apache.spark" %% "spark-core" % "2.4.0"
-libraryDependencies += "org.apache.spark" %% "spark-sql" % "2.4.0"
-libraryDependencies += "org.apache.spark" %% "spark-hive" % "2.4.0"
+libraryDependencies += "org.apache.spark" %% "spark-core" % sparkVersion
+libraryDependencies += "org.apache.spark" %% "spark-sql" % sparkVersion
+libraryDependencies += "org.apache.spark" %% "spark-hive" % sparkVersion
 
 libraryDependencies += "org.eclipse.jetty" % "jetty-server" % "9.4.0.M0"
 libraryDependencies += "org.eclipse.jetty" % "jetty-servlets" % "9.4.0.M0"

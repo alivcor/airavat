@@ -1,17 +1,4 @@
-{
-  "jobId": 1,
-  "numStages": 1,
-  "numTasks": 0,
-  "totalDuration": 131,
-  "totalDiskSpill": 0,
-  "totalBytesRead": 65536,
-  "totalBytesWritten": 0,
-  "totalResultSize": 8826,
-  "totalShuffleReadBytes": 0,
-  "totalShuffleWriteBytes": 1,
-  "timestamp": "2021-02-22T17:06:20.756"
-}
 
 
-"jobId","numStages","numTasks","totalDuration","totalDiskSpill","totalBytesRead","totalBytesWritten","totalResultSize","totalShuffleReadBytes","totalShuffleWriteBytes","timestamp"
+
 

@@ -1,5 +1,6 @@
 package com.iresium.airavat
 
+import org.apache.spark.sql.SparkSession
 import slick.dbio.DBIO
 import slick.jdbc.JdbcBackend.Database
 import slick.jdbc.PostgresProfile.api._
@@ -24,41 +25,74 @@ import scala.util.{Failure, Success}
  */
 
 object AiravatApp extends App {
-//
-//    val spark = SparkSession
-//        .builder()
-//        .master("local")
-//        .appName("My Spark Application")
-//        .config("spark.extraListeners", "com.iresium.airavat.AiravatListener")
-//        .config("spark.airavat.maxTotalDuration", "3600")
-//        .config("spark.airavat.collectJobMetrics", "true")
-//        .getOrCreate()
-//
-//    val df = spark.read.option("header", true).csv("data/netflix_titles.csv")
-//    df.show()
-//
 
 
-    val airavatJobs = TableQuery[AiravatJobs]
-    val db = Database.forConfig("sqlite1")
+    def createJobsTable() = {
 
+        val airavatJobs = TableQuery[AiravatJobs]
+        val db = Database.forConfig("sqlite1")
+//        val config: Config = ConfigFactory.load("assets/application.conf")
 
-    //#create
-    val setup = DBIO.seq(
-        // Create the tables, including primary and foreign keys
-        (airavatJobs.schema).create,
+        //#create
+        val setup = DBIO.seq(
+            // Create the tables, including primary and foreign keys
+            (airavatJobs.schema).create
+//            // Insert some suppliers
+//            airavatJobs += ("test", 1,1L,0,131L,0L,66536L,0L,8826L,0L,1L,"2021-02-22T17:06:20.756")
+        )
 
-        // Insert some suppliers
-        airavatJobs += (1,1L,0,131L,0L,66536L,0L,8826L,0L,1L,"2021-02-22T17:06:20.756")
+        val setupFuture = db.run(setup)
 
-    )
+        setupFuture onComplete {
+            case Success(v) => println(v)
+            case Failure(t) => println("An error has occurred: " + t.getMessage)
+        }
 
-    val setupFuture = db.run(setup)
-
-    setupFuture onComplete {
-        case Success(v) => println(v)
-        case Failure(t) => println("An error has occurred: " + t.getMessage)
+        Await.result(setupFuture, Duration.Inf)
     }
 
-    Await.result(setupFuture, Duration.Inf)
+
+    def createQueriesTable() = {
+        val airavatQueries = TableQuery[AiravatQueries]
+        val db = Database.forConfig("sqlite1")
+        //        val config: Config = ConfigFactory.load("assets/application.conf")
+
+        //#create
+        val setup = DBIO.seq(
+            // Create the tables, including primary and foreign keys
+            (airavatQueries.schema).create
+        )
+
+        val setupFuture = db.run(setup)
+
+        setupFuture onComplete {
+            case Success(v) => println(v)
+            case Failure(t) => println("An error has occurred: " + t.getMessage)
+        }
+
+        Await.result(setupFuture, Duration.Inf)
+    }
+
+//    createQueriesTable()
+    val spark = SparkSession
+        .builder()
+        .master("local")
+        .appName("My Spark Application")
+        .config("spark.extraListeners", "com.iresium.airavat.AiravatJobListener")
+        .config("spark.airavat.maxTotalDuration", "3600")
+        .config("spark.airavat.collectJobMetrics", "true")
+        .getOrCreate()
+
+//    spark.sessionState.listenerManager.register(new AiravatQueryListener)
+    val df = spark.read.option("header", true).csv("data/netflix_titles.csv")
+
+    df.show()
+
+    df.createOrReplaceTempView("netflix")
+
+    val bollywoodShows = spark.sql("SELECT * FROM netflix WHERE country='India'")
+    bollywoodShows.show()
+
+
+
 }
