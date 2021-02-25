@@ -9,16 +9,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.iresium.airavat
 
 import com.google.gson._
 import org.apache.spark.SparkConf
-import org.apache.spark.internal.Logging
 import org.apache.spark.scheduler.{SparkListener, SparkListenerEvent, _}
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.execution.SQLExecution
 import org.apache.spark.sql.execution.ui.{SparkListenerSQLExecutionEnd, SparkListenerSQLExecutionStart}
 import org.joda.time.DateTime
+import org.slf4j.LoggerFactory
 import slick.dbio.DBIO
 import slick.jdbc.JdbcBackend.Database
 import slick.jdbc.PostgresProfile.api._
@@ -29,7 +30,7 @@ import scala.concurrent.duration.DurationInt
 import scala.util.{Failure, Success, Try}
 
 
-class AiravatJobListener(conf: SparkConf) extends SparkListener with Logging {
+class AiravatJobListener(conf: SparkConf) extends SparkListener {
 
     var appId = ""
     val db = Database.forConfig("sqlite1")
@@ -46,37 +47,44 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener with Logging {
         .registerTypeAdapter(classOf[DateTime], new DateTimeSerializer)
         .create()
 
+    val logger = LoggerFactory.getLogger(this.getClass)
+    
     override def onOtherEvent(event: SparkListenerEvent): Unit = {
         event match {
             case executionStart: SparkListenerSQLExecutionStart =>
-                logInfo(s"Adding executionId " + executionStart.executionId + " to queryInfo")
+                logger.debug(s"Adding executionId " + executionStart.executionId + " to queryInfo")
                 queryInfo += (executionStart.executionId -> QueryMetricSerializer.serialize(executionStart))
 
+
             case executionEnd: SparkListenerSQLExecutionEnd =>
-                logInfo(s"Looking for executionId " + executionEnd.executionId + " in queryInfo : " + queryInfo.contains(executionEnd.executionId))
-                val queryExecution = SQLExecution.getQueryExecution(executionEnd.executionId)
-                logInfo(s" jobMap : " + jobMap)
-                logInfo(s" queryMap : " + queryMap)
-                logInfo(s" jobInfo : " + jobInfo)
-                logInfo(s" queryInfo : " + queryInfo)
-                queryInfo(executionEnd.executionId) = QueryMetricSerializer.updateMetrics(executionEnd, queryInfo(executionEnd.executionId), queryMap(executionEnd.executionId), jobInfo)
-                logInfo(s"executionEnd - " + queryExecution)
-                logQueryMetrics(queryInfo(executionEnd.executionId))
+                logger.debug(s"Looking for executionId " + executionEnd.executionId + " in queryInfo : " + queryInfo.contains(executionEnd.executionId))
+                logger.debug(s" jobMap : " + jobMap)
+                logger.debug(s" queryMap : " + queryMap)
+
+                if(queryMap.contains(executionEnd.executionId)){
+                    queryInfo(executionEnd.executionId) = QueryMetricSerializer._updateMetrics(executionEnd, queryInfo(executionEnd.executionId), (queryMap(executionEnd.executionId)).map(jobInfo(_)))
+                    logger.info(queryInfo(executionEnd.executionId).queryStats)
+                    // TODO : Evict Jobs associated
+                } else {
+                    logger.warn("Execution ID " + executionEnd.executionId + " not found in queryMap")
+                }
+
+
+
+                if(Try(conf.get("spark.airavat.collectQueryMetrics").toBoolean).getOrElse(false)) logQueryMetrics(queryInfo(executionEnd.executionId))
             case _ =>
         }
     }
 
 
-
     def logQueryMetrics(queryMetricTuple: QueryMetricTuple) = {
-        if(Try(conf.get("spark.airavat.collectQueryMetrics").toBoolean).getOrElse(false)){
+
             try{
 
                 val addQuerySeq = DBIO.seq(
                     airavatQueries += (appId,
                         queryMetricTuple.executionId,
                         queryMetricTuple.description,
-                        queryMetricTuple.details,
                         queryMetricTuple.startTimestamp,
                         queryMetricTuple.sparkPlan,
                         queryMetricTuple.endTimestamp,
@@ -87,35 +95,52 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener with Logging {
                         queryMetricTuple.totalResultSize,
                         queryMetricTuple.totalShuffleReadBytes,
                         queryMetricTuple.totalShuffleWriteBytes,
+                        queryMetricTuple.logicalPlan,
+                        queryMetricTuple.optimizedPlan,
+                        queryMetricTuple.executedPlan,
+                        queryMetricTuple.queryStats,
                         queryMetricTuple.duration)
                 )
                 val logQueryMetricsF = db.run(addQuerySeq)
 
 
                 logQueryMetricsF onComplete {
-                    case Success(v) => logInfo("Logged metrics for Query " + queryMetricTuple.executionId + " to the sink")
-                    case Failure(t) => logWarning("An error occurred while logging queryMetrics to sink: " + t.getMessage)
+                    case Success(v) => logger.info("Logged metrics for Query " + queryMetricTuple.executionId + " to the sink")
+                    case Failure(t) => logger.warn("An error occurred while logging queryMetrics to sink: " + t.getMessage)
                 }
 
                 Await.result(logQueryMetricsF, 120 seconds)
 
             } catch {
-                case e: Exception => { logWarning(s"Failed to log queryMetrics to sink: " + e.getMessage)}
+                case e: Exception => { logger.warn(s"Failed to log queryMetrics to sink: " + e.getMessage)}
             }
             //            finally db.close
 
-        }
     }
 
     override def onApplicationStart(applicationStart: SparkListenerApplicationStart): Unit = {
-        logInfo(s"onApplicationStart - appId() = " + applicationStart.appId)
+        logger.info(s"Tracking Application - " + applicationStart.appId)
         appId = applicationStart.appId.getOrElse("Unknown")
         SparkSession.builder().getOrCreate().sessionState.listenerManager.register(new AiravatQueryListener)
     }
 
+
+    private def evictJobs(jobs: Seq[Int]): Unit = {
+        try {
+//            jobInfo -= jobId
+            jobs.foreach(jobInfo.remove)
+        } catch {
+            case e: Exception => { logger.warn(s"Failed to evict job Ids " + jobs + " from job Metrics : " + e.getMessage)}
+        }
+    }
+
+    private def evictJobMetrics(jobId: Int): Unit = {
+        // TODO - Evict Jobs which don't have an execution ID but are clogging up and complete/failed
+    }
+
     override def onJobStart(jobStart: SparkListenerJobStart) {
 
-        logInfo("JobStart " + jobStart.jobId)
+        logger.info("JobStart " + jobStart.jobId)
         val executionIdString = jobStart.properties.getProperty(SQLExecution.EXECUTION_ID_KEY)
         if (executionIdString != null) {
             // This job is created by SQL Query
@@ -141,13 +166,8 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener with Logging {
 
     override def onJobEnd(jobEnd: SparkListenerJobEnd) {
 
-
-        logInfo("JobEnd " + jobEnd.jobId)
+        logger.info("JobEnd " + jobEnd.jobId)
         if(Try(conf.get("spark.airavat.collectJobMetrics").toBoolean).getOrElse(false)){
-
-
-            logInfo(gson.toJson(jobInfo(jobEnd.jobId)))
-
             try{
                 val jobDetails = jobInfo(jobEnd.jobId)
                 val addJobsSeq = DBIO.seq(
@@ -157,24 +177,19 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener with Logging {
 
 
                 logJobMetricsF onComplete {
-                    case Success(v) => logInfo("Logged metrics for " + jobDetails.jobId + " to the sink")
-                    case Failure(t) => logWarning("An error occurred while logging jobMetrics to sink: " + t.getMessage)
+                    case Success(v) => logger.info("Logged metrics for " + jobDetails.jobId + " to the sink")
+                    case Failure(t) => logger.warn("An error occurred while logging jobMetrics to sink: " + t.getMessage)
                 }
 
                 Await.result(logJobMetricsF, 120 seconds)
 
             } catch {
-                case e: Exception => { logWarning(s"Failed to log jobMetrics to sink: " + e.getMessage)}
+                case e: Exception => { logger.warn(s"Failed to log jobMetrics to sink: " + e.getMessage)}
             }
 //            finally db.close
 
         }
 
-//        try {
-//            jobInfo -= jobEnd.jobId
-//        } catch {
-//            case e: Exception => { logWarning(s"Failed to evict job Id from job Metrics")}
-//        }
     }
 
     override def onTaskEnd(taskEnd: SparkListenerTaskEnd) {

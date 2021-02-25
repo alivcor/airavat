@@ -1,8 +1,3 @@
-package com.iresium.airavat
-
-import org.apache.spark.scheduler.{SparkListenerJobStart, SparkListenerTaskEnd}
-
-import scala.util.Try
 /*
  * Created by @alivcor (Abhinandan Dubey) on 2/11/21 
  * Licensed under the Mozilla Public License Version 2.0 (the "License");
@@ -14,6 +9,12 @@ import scala.util.Try
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package com.iresium.airavat
+
+
+import org.apache.spark.scheduler.{SparkListenerJobStart, SparkListenerTaskEnd}
+import scala.util.Try
 
 object JobMetricSerializer {
     def serialize(jobStart: SparkListenerJobStart) = {

@@ -1,5 +1,3 @@
-package com.iresium.airavat
-
 /*
  * Created by @alivcor (Abhinandan Dubey) on 2/3/21 
  * Licensed under the Mozilla Public License Version 2.0 (the "License");
@@ -12,9 +10,9 @@ package com.iresium.airavat
  * limitations under the License.
  */
 
+package com.iresium.airavat
 
 import java.lang.reflect.Type
-
 import com.google.gson._
 import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTime, DateTimeZone}

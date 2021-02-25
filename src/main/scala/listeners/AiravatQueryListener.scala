@@ -1,5 +1,3 @@
-package com.iresium.airavat
-
 /*
  * Created by @alivcor (Abhinandan Dubey) on 2/23/21 
  * Licensed under the Mozilla Public License Version 2.0 (the "License");
@@ -12,19 +10,28 @@ package com.iresium.airavat
  * limitations under the License.
  */
 
+package com.iresium.airavat
 
+
+import com.iresium.airavat.sickle.Sickle
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.QueryExecution
 import org.apache.spark.sql.util.QueryExecutionListener
+import org.slf4j.LoggerFactory
 
 
 class AiravatQueryListener extends QueryExecutionListener with Logging {
 
+    val logger = LoggerFactory.getLogger(this.getClass)
+
+
     override def onSuccess(funcName: String, qe: QueryExecution, durationNs: Long): Unit = {
-        logInfo(s"funcName " + funcName)
-        logInfo(s"sparkPlan.simpleString " + qe.simpleString)
-        logInfo(s"sparkPlan " + qe.sparkPlan.toString())
+        val rwMetrics = Sickle.getAggregatedQueryMetrics(qe.executedPlan)
+        val cherryBunch = Sickle.cherryPick(qe.executedPlan)
+//        logInfo(rwMetrics.toString())
+//        qe.executedPlan.find(_.isInstanceOf[PushedFilters])
         logInfo(s"durationNs " + durationNs)
+
     }
 
     override def onFailure(funcName: String, qe: QueryExecution, exception: Exception): Unit = {

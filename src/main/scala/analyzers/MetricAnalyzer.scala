@@ -1,5 +1,3 @@
-package com.iresium.airavat
-
 /*
  * Created by @alivcor (Abhinandan Dubey) on 2/3/21 
  * Licensed under the Mozilla Public License Version 2.0 (the "License");
@@ -11,6 +9,9 @@ package com.iresium.airavat
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package com.iresium.airavat
+
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
 

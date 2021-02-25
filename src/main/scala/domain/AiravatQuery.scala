@@ -1,5 +1,3 @@
-package com.iresium.airavat
-
 /*
  * Created by @alivcor (Abhinandan Dubey) on 2/22/21 
  * Licensed under the Mozilla Public License Version 2.0 (the "License");
@@ -11,13 +9,15 @@ package com.iresium.airavat
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package com.iresium.airavat
+
 import slick.jdbc.PostgresProfile.api._
 
-class AiravatQueries(tag: Tag) extends Table[(String, Long, String, String, Long, String, Long, Int, Long, Long, Long, Long, Long, Long, Long)](tag, "AIRAVAT_QUERY_INFO") {
+class AiravatQueries(tag: Tag) extends Table[(String, Long, String, Long, String, Long, Int, Long, Long, Long, Long, Long, Long, String, String, String, String, Long)](tag, "AIRAVAT_QUERY_INFO") {
     def appId = column[String]("appId")
     def executionId = column[Long]("executionId")
     def description = column[String]("description")
-    def details = column[String]("details")
     def startTimestamp = column[Long]("startTimestamp")
     def sparkPlan = column[String]("sparkPlan")
     def endTimestamp = column[Long]("endTimestamp")
@@ -28,9 +28,13 @@ class AiravatQueries(tag: Tag) extends Table[(String, Long, String, String, Long
     def totalResultSize = column[Long]("totalResultSize")
     def totalShuffleReadBytes = column[Long]("totalShuffleReadBytes")
     def totalShuffleWriteBytes = column[Long]("totalShuffleWriteBytes")
+    def logicalPlan = column[String]("logicalPlan")
+    def optimizedPlan = column[String]("optimizedPlan")
+    def executedPlan = column[String]("executedPlan")
+    def queryStats = column[String]("queryStats")
     def duration = column[Long]("duration")
     // Every table needs a * projection with the same type as the table's type parameter
-    def * = (appId, executionId, description, details, startTimestamp, sparkPlan, endTimestamp, numTasks, totalDiskSpill, totalBytesRead, totalBytesWritten, totalResultSize, totalShuffleReadBytes, totalShuffleWriteBytes, duration)
+    def * = (appId, executionId, description, startTimestamp, sparkPlan, endTimestamp, numTasks, totalDiskSpill, totalBytesRead, totalBytesWritten, totalResultSize, totalShuffleReadBytes, totalShuffleWriteBytes, logicalPlan, optimizedPlan, executedPlan, queryStats, duration)
 }
 
 

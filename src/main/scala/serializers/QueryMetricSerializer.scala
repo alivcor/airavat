@@ -1,7 +1,3 @@
-package com.iresium.airavat
-
-import org.apache.spark.sql.execution.ui.{SparkListenerSQLExecutionEnd, SparkListenerSQLExecutionStart, SparkPlanGraph}
-
 /*
  * Created by @alivcor (Abhinandan Dubey) on 2/23/21
  * Licensed under the Mozilla Public License Version 2.0 (the "License");
@@ -14,6 +10,14 @@ import org.apache.spark.sql.execution.ui.{SparkListenerSQLExecutionEnd, SparkLis
  * limitations under the License.
  */
 
+package com.iresium.airavat
+
+import org.apache.spark.sql.execution.SQLExecution
+import org.apache.spark.sql.execution.ui.{SparkListenerSQLExecutionEnd, SparkListenerSQLExecutionStart, SparkPlanGraph}
+
+import scala.util.Try
+
+
 object QueryMetricSerializer {
 
     def updateMetrics(executionEnd: SparkListenerSQLExecutionEnd, queryMetricTuple: QueryMetricTuple, jobIds: Seq[Int], jobInfo: scala.collection.mutable.Map[Int, JobMetricTuple] ) = {
@@ -22,7 +26,8 @@ object QueryMetricSerializer {
         for(jobId <- jobIds){
             jobMetricTuples :+ jobInfo(jobId)
         }
-        _updateMetrics(executionEnd, queryMetricTuple, jobMetricTuples)
+
+        _updateMetrics(executionEnd, queryMetricTuple, jobIds.map(jobInfo(_)))
     }
 
 
@@ -45,13 +50,15 @@ object QueryMetricSerializer {
             totalShuffleReadBytes += jobMetricTuple.totalShuffleReadBytes
             totalShuffleWriteBytes += jobMetricTuple.totalShuffleWriteBytes
         }
+        val queryExecution = SQLExecution.getQueryExecution(executionEnd.executionId)
+
+
         QueryMetricTuple(queryMetricTuple.executionId,
             queryMetricTuple.description,
-            queryMetricTuple.details,
             queryMetricTuple.startTimestamp,
             queryMetricTuple.sparkPlan,
             executionEnd.time,
-            numTasks, totalDiskSpill, totalBytesRead, totalBytesWritten, totalResultSize, totalShuffleReadBytes, totalShuffleWriteBytes, duration
+            numTasks, totalDiskSpill, totalBytesRead, totalBytesWritten, totalResultSize, totalShuffleReadBytes, totalShuffleWriteBytes, Try(queryExecution.logical.toString()).getOrElse(""), Try(queryExecution.optimizedPlan.toString()).getOrElse(""), Try(queryExecution.executedPlan.toString()).getOrElse(""), Try(queryExecution.stringWithStats).getOrElse(""), duration
         )
     }
 
@@ -65,7 +72,6 @@ object QueryMetricSerializer {
 
         QueryMetricTuple(executionStart.executionId,
             executionStart.description,
-            executionStart.details,
             executionStart.time,
             executionStart.sparkPlanInfo.simpleString)
 

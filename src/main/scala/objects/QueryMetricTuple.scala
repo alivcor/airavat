@@ -1,5 +1,3 @@
-package com.iresium.airavat
-
 /*
  * Created by @alivcor (Abhinandan Dubey) on 2/23/21 
  * Licensed under the Mozilla Public License Version 2.0 (the "License");
@@ -12,9 +10,10 @@ package com.iresium.airavat
  * limitations under the License.
  */
 
+package com.iresium.airavat
+
 case class QueryMetricTuple(executionId: Long,
                             description: String,
-                            details: String,
                             startTimestamp: Long,
                             sparkPlan: String,
                             endTimestamp: Long = 0L,
@@ -25,6 +24,10 @@ case class QueryMetricTuple(executionId: Long,
                             totalResultSize: Long= 0L, // derived metric
                             totalShuffleReadBytes: Long = 0L, // derived metric
                             totalShuffleWriteBytes: Long= 0L, // derived metric
+                            logicalPlan: String = "",
+                            optimizedPlan: String =  "",
+                            executedPlan: String = "",
+                            queryStats: String = "",
                             duration: Long = 0L
                             )
 

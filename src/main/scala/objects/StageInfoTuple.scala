@@ -1,5 +1,3 @@
-package com.iresium.airavat
-
 /*
  * Created by @alivcor (Abhinandan Dubey) on 2/11/21 
  * Licensed under the Mozilla Public License Version 2.0 (the "License");
@@ -12,6 +10,7 @@ package com.iresium.airavat
  * limitations under the License.
  */
 
+package com.iresium.airavat
 
 
 case class StageInfoTuple(
