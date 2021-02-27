@@ -39,6 +39,7 @@ class AiravatQueryListener(conf: SparkConf)  extends QueryExecutionListener with
     val db = Database.forConfig(Try(conf.get("spark.airavat.dbName")).getOrElse("airavat_db"))
     val airavatQueryPlan = TableQuery[AiravatQueryPlan]
 
+
     override def onSuccess(funcName: String, qe: QueryExecution, durationNs: Long): Unit = {
         val serializedPlanInfo: QueryPlanTuple = QueryPlanSerializer.serialize(currentExecutionId, funcName, qe, durationNs)
         logInfo(s"Execution ID = " + currentExecutionId)
@@ -51,6 +52,8 @@ class AiravatQueryListener(conf: SparkConf)  extends QueryExecutionListener with
             val serializedPlanInfo: QueryPlanTuple = QueryPlanSerializer.serialize(currentExecutionId, funcName, qe, 0)
             logInfo(s"Execution ID = " + currentExecutionId)
             if(Try(conf.get("spark.airavat.collectQueryPlan").toBoolean).getOrElse(false)) logQueryPlan(qe.sparkSession.sparkContext.applicationId, serializedPlanInfo, exception.getStackTrace.toString)
+        } catch {
+            case e: Exception => logWarning(s"An error occured serializing the plan " + e.getStackTrace())
         }
 
         currentExecutionId += 1
