@@ -34,8 +34,8 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
 
     var appId = ""
     val db = Database.forConfig("sqlite1")
-    val airavatJobs = TableQuery[AiravatJobs]
-    val airavatQueries = TableQuery[AiravatQueries]
+    val airavatJobMetric = TableQuery[AiravatJobMetric]
+    val airavatQueryMetric = TableQuery[AiravatQueryMetric]
     var jobMap = scala.collection.mutable.Map[Int, Int] ()
     var jobInfo = scala.collection.mutable.Map[Int, JobMetricTuple] ()
     var queryMap = scala.collection.mutable.Map[Long, Seq[Int]] ()
@@ -55,7 +55,6 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
                 logger.debug(s"Adding executionId " + executionStart.executionId + " to queryInfo")
                 queryInfo += (executionStart.executionId -> QueryMetricSerializer.serialize(executionStart))
 
-
             case executionEnd: SparkListenerSQLExecutionEnd =>
                 logger.debug(s"Looking for executionId " + executionEnd.executionId + " in queryInfo : " + queryInfo.contains(executionEnd.executionId))
                 logger.debug(s" jobMap : " + jobMap)
@@ -63,12 +62,11 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
 
                 if(queryMap.contains(executionEnd.executionId)){
                     queryInfo(executionEnd.executionId) = QueryMetricSerializer._updateMetrics(executionEnd, queryInfo(executionEnd.executionId), (queryMap(executionEnd.executionId)).map(jobInfo(_)))
-                    logger.info(queryInfo(executionEnd.executionId).queryStats)
+
                     // TODO : Evict Jobs associated
                 } else {
                     logger.warn("Execution ID " + executionEnd.executionId + " not found in queryMap")
                 }
-
 
 
                 if(Try(conf.get("spark.airavat.collectQueryMetrics").toBoolean).getOrElse(false)) logQueryMetrics(queryInfo(executionEnd.executionId))
@@ -82,7 +80,7 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
             try{
 
                 val addQuerySeq = DBIO.seq(
-                    airavatQueries += (appId,
+                    airavatQueryMetric += (appId,
                         queryMetricTuple.executionId,
                         queryMetricTuple.description,
                         queryMetricTuple.startTimestamp,
@@ -94,12 +92,7 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
                         queryMetricTuple.totalBytesWritten,
                         queryMetricTuple.totalResultSize,
                         queryMetricTuple.totalShuffleReadBytes,
-                        queryMetricTuple.totalShuffleWriteBytes,
-                        queryMetricTuple.logicalPlan,
-                        queryMetricTuple.optimizedPlan,
-                        queryMetricTuple.executedPlan,
-                        queryMetricTuple.queryStats,
-                        queryMetricTuple.duration)
+                        queryMetricTuple.totalShuffleWriteBytes)
                 )
                 val logQueryMetricsF = db.run(addQuerySeq)
 
@@ -152,6 +145,7 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
             }
         }
 
+
         val jobMetricTuple: JobMetricTuple = JobMetricSerializer.serialize(jobStart)
         for(stageId <- jobMetricTuple.stageIds){
             jobMap += (stageId -> jobStart.jobId)
@@ -171,7 +165,7 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
             try{
                 val jobDetails = jobInfo(jobEnd.jobId)
                 val addJobsSeq = DBIO.seq(
-                    airavatJobs += (appId, jobDetails.jobId, jobDetails.numStages, jobDetails.numTasks, jobDetails.totalDuration, jobDetails.totalDiskSpill, jobDetails.totalBytesRead, jobDetails.totalBytesWritten, jobDetails.totalResultSize, jobDetails.totalShuffleReadBytes, jobDetails.totalShuffleWriteBytes, jobDetails.timestamp)
+                    airavatJobMetric += (appId, jobDetails.jobId, jobDetails.numStages, jobDetails.numTasks, jobDetails.totalDuration, jobDetails.totalDiskSpill, jobDetails.totalBytesRead, jobDetails.totalBytesWritten, jobDetails.totalResultSize, jobDetails.totalShuffleReadBytes, jobDetails.totalShuffleWriteBytes, jobDetails.timestamp)
                 )
                 val logJobMetricsF = db.run(addJobsSeq)
 

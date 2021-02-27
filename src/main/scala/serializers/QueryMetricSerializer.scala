@@ -15,8 +15,6 @@ package com.iresium.airavat
 import org.apache.spark.sql.execution.SQLExecution
 import org.apache.spark.sql.execution.ui.{SparkListenerSQLExecutionEnd, SparkListenerSQLExecutionStart, SparkPlanGraph}
 
-import scala.util.Try
-
 
 object QueryMetricSerializer {
 
@@ -58,7 +56,7 @@ object QueryMetricSerializer {
             queryMetricTuple.startTimestamp,
             queryMetricTuple.sparkPlan,
             executionEnd.time,
-            numTasks, totalDiskSpill, totalBytesRead, totalBytesWritten, totalResultSize, totalShuffleReadBytes, totalShuffleWriteBytes, Try(queryExecution.logical.toString()).getOrElse(""), Try(queryExecution.optimizedPlan.toString()).getOrElse(""), Try(queryExecution.executedPlan.toString()).getOrElse(""), Try(queryExecution.stringWithStats).getOrElse(""), duration
+            numTasks, totalDiskSpill, totalBytesRead, totalBytesWritten, totalResultSize, totalShuffleReadBytes, totalShuffleWriteBytes
         )
     }
 

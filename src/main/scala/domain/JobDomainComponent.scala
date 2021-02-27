@@ -14,7 +14,7 @@ package com.iresium.airavat
 
 import slick.jdbc.PostgresProfile.api._
 
-class AiravatJobs(tag: Tag) extends Table[(String, Int, Long, Int, Long, Long, Long, Long, Long, Long, Long, String)](tag, "AIRAVAT_JOB_INFO") {
+class AiravatJobMetric(tag: Tag) extends Table[(String, Int, Long, Int, Long, Long, Long, Long, Long, Long, Long, String)](tag, "AIRAVAT_JOB_INFO") {
     def appId = column[String]("appId")
     def jobId = column[Int]("jobId") // This is the primary key column
     def numStages = column[Long]("numStages")

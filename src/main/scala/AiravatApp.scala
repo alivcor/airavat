@@ -26,7 +26,7 @@ object AiravatApp extends App {
 
     def createJobsTable() = {
 
-        val airavatJobs = TableQuery[AiravatJobs]
+        val airavatJobs = TableQuery[AiravatJobMetric]
         val db = Database.forConfig("sqlite1")
 //        val config: Config = ConfigFactory.load("assets/application.conf")
 
@@ -48,7 +48,7 @@ object AiravatApp extends App {
 
 
     def createQueriesTable() = {
-        val airavatQueries = TableQuery[AiravatQueries]
+        val airavatQueries = TableQuery[AiravatQueryMetric]
         val db = Database.forConfig("sqlite1")
         //        val config: Config = ConfigFactory.load("assets/application.conf")
 
@@ -67,6 +67,7 @@ object AiravatApp extends App {
     }
 
 //    createQueriesTable()
+//    createJobsTable()
     val spark = SparkSession
         .builder()
         .master("local")
@@ -86,8 +87,11 @@ object AiravatApp extends App {
 
     df.createOrReplaceTempView("netflix")
 
-    val bollywoodShows = spark.sql("SELECT country, count(*) FROM netflix WHERE type = 'Movie' GROUP BY country")
-    bollywoodShows.show()
+//    val bollywoodShows = spark.sql("SELECT country, count(*) FROM netflix WHERE type = 'Movie' GROUP BY country")
+//    bollywoodShows.show()
+
+    val joinQueryDF = spark.sql("SELECT m1.title AS Movie1, m2.title AS Movie2 FROM netflix m1, netflix m2 WHERE m1.release_year = m2.release_year AND m1.type = 'Movie' and m2.type = 'Movie' ORDER BY m1.country")
+    joinQueryDF.show()
 //    bollywoodShows.
 
     System.in.read()

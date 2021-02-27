@@ -13,29 +13,28 @@
 package com.iresium.airavat
 
 
-import com.iresium.airavat.sickle.Sickle
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.QueryExecution
 import org.apache.spark.sql.util.QueryExecutionListener
 import org.slf4j.LoggerFactory
 
 
+
 class AiravatQueryListener extends QueryExecutionListener with Logging {
 
+
     val logger = LoggerFactory.getLogger(this.getClass)
-
-
+    var currentExecutionId = 0
     override def onSuccess(funcName: String, qe: QueryExecution, durationNs: Long): Unit = {
-        val rwMetrics = Sickle.getAggregatedQueryMetrics(qe.executedPlan)
-        val cherryBunch = Sickle.cherryPick(qe.executedPlan)
-//        logInfo(rwMetrics.toString())
-//        qe.executedPlan.find(_.isInstanceOf[PushedFilters])
-        logInfo(s"durationNs " + durationNs)
+        val serializedPlanInfo = QueryPlanSerializer.serialize(currentExecutionId, funcName, qe, durationNs)
+        logInfo(s"Execution ID = " + currentExecutionId)
+        currentExecutionId += 1
 
     }
 
     override def onFailure(funcName: String, qe: QueryExecution, exception: Exception): Unit = {
         logInfo(s"funcName " + funcName)
         logInfo(s"sparkPlan " + qe.sparkPlan.toString())
+        currentExecutionId += 1
     }
 }

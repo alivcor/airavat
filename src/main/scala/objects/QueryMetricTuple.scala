@@ -23,13 +23,15 @@ case class QueryMetricTuple(executionId: Long,
                             totalBytesWritten: Long= 0L, // derived metric
                             totalResultSize: Long= 0L, // derived metric
                             totalShuffleReadBytes: Long = 0L, // derived metric
-                            totalShuffleWriteBytes: Long= 0L, // derived metric
-                            logicalPlan: String = "",
-                            optimizedPlan: String =  "",
-                            executedPlan: String = "",
-                            queryStats: String = "",
-                            duration: Long = 0L
-                            )
+                            totalShuffleWriteBytes: Long= 0L)
+
+// derived metric
+//                            logicalPlan: String = "",
+//                            optimizedPlan: String =  "",
+//                            executedPlan: String = "",
+//                            queryStats: String = "",
+//                            duration: Long = 0L
+//                            )
 
 //case class QueryMetricTuple(executionId: Long,
 //                            description: String,

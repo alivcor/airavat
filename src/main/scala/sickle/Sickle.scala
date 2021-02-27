@@ -1,12 +1,10 @@
 package com.iresium.airavat.sickle
 
-import org.apache.spark.sql.execution._
 import org.apache.spark.sql.execution.aggregate.HashAggregateExec
 import org.apache.spark.sql.execution.columnar.InMemoryTableScanExec
 import org.apache.spark.sql.execution.exchange.ShuffleExchangeExec
-import org.apache.spark.sql.execution.joins.{BroadcastHashJoinExec, ShuffledHashJoinExec, SortMergeJoinExec}
-import org.apache.spark.sql.execution.{LeafExecNode, SparkPlan}
-
+import org.apache.spark.sql.execution.joins.{BroadcastHashJoinExec, BroadcastNestedLoopJoinExec, ShuffledHashJoinExec, SortMergeJoinExec}
+import org.apache.spark.sql.execution.{LeafExecNode, SparkPlan, _}
 
 /*
  * Created by @alivcor (Abhinandan Dubey) on 2/25/21 
@@ -25,18 +23,24 @@ object Sickle {
     def cherryPick(executedPlan: SparkPlan): CherryNode = {
         def recurse(treeNode: SparkPlan, cherryNode: CherryNode): CherryNode = {
             val newCherryNode: CherryNode = treeNode match {
-                    case _: WholeStageCodegenExec => new WholeStageCodegenExecNode(treeNode)
-                    case _: HashAggregateExec => new HashAggregateExecNode(treeNode)
-                    case _: BroadcastHashJoinExec => new BroadcastHashJoinExecNode(treeNode)
-                    case _: ShuffledHashJoinExec => new ShuffledHashJoinExecNode(treeNode)
-                    case _: SortMergeJoinExec => new SortMergeJoinExecNode(treeNode)
-                    case _: RDDScanExec => new RDDScanExecNode(treeNode)
-                    case _: DataSourceScanExec => new DataSourceScanExecNode(treeNode)
-                    case _: InMemoryTableScanExec => new InMemoryTableScanExecNode(treeNode)
-                    case _: ShuffleExchangeExec => new ShuffleExchangeExecNode(treeNode)
-                    case _: ProjectExec => new ProjectExecNode(treeNode)
-                    case _: FilterExec => new FilterExecNode(treeNode)
-                    case _: FileSourceScanExec => new FileSourceScanExecNode(treeNode)
+                    case _: WholeStageCodegenExec => new WholeStageCodegenExecNode(treeNode.asInstanceOf[WholeStageCodegenExec])
+                    case _: HashAggregateExec => new HashAggregateExecNode(treeNode.asInstanceOf[HashAggregateExec])
+                    case _: BroadcastHashJoinExec => new BroadcastHashJoinExecNode(treeNode.asInstanceOf[BroadcastHashJoinExec])
+                    case _: ShuffledHashJoinExec => new ShuffledHashJoinExecNode(treeNode.asInstanceOf[ShuffledHashJoinExec])
+                    case _: SortMergeJoinExec => new SortMergeJoinExecNode(treeNode.asInstanceOf[SortMergeJoinExec])
+                    case _: RDDScanExec => new RDDScanExecNode(treeNode.asInstanceOf[RDDScanExec])
+                    case _: DataSourceScanExec => new DataSourceScanExecNode(treeNode.asInstanceOf[DataSourceScanExec])
+                    case _: InMemoryTableScanExec => new InMemoryTableScanExecNode(treeNode.asInstanceOf[InMemoryTableScanExec])
+                    case _: ShuffleExchangeExec => new ShuffleExchangeExecNode(treeNode.asInstanceOf[ShuffleExchangeExec])
+                    case _: ProjectExec => new ProjectExecNode(treeNode.asInstanceOf[ProjectExec])
+                    case _: FilterExec => new FilterExecNode(treeNode.asInstanceOf[FilterExec])
+                    case _: FileSourceScanExec => new FileSourceScanExecNode(treeNode.asInstanceOf[FileSourceScanExec])
+                    case _: CollectLimitExec => new CollectLimitExecNode(treeNode.asInstanceOf[CollectLimitExec])
+                    case _: InputAdapter => new InputAdapterNode(treeNode.asInstanceOf[InputAdapter])
+                    case _: TakeOrderedAndProjectExec => new TakeOrderedAndProjectExecNode(treeNode.asInstanceOf[TakeOrderedAndProjectExec])
+                    case _: RowDataSourceScanExec => new RowDataSourceScanExecNode(treeNode.asInstanceOf[RowDataSourceScanExec])
+                    case _: DataSourceScanExec => new DataSourceScanExecNode(treeNode.asInstanceOf[DataSourceScanExec])
+                    case _: BroadcastNestedLoopJoinExec => new BroadcastNestedLoopJoinExecNode(treeNode.asInstanceOf[BroadcastNestedLoopJoinExec])
                     case _ => new UnknownNode(treeNode)
                 }
             if(!treeNode.children.isEmpty){
@@ -47,7 +51,7 @@ object Sickle {
         }
         recurse(executedPlan, new StemNode())
     }
-//treeNode.prettyJson
+
 
     type Metrics = Map[String, Long]
 
