@@ -12,25 +12,24 @@
 
 package com.iresium.airavat
 
-import org.apache.spark.sql.execution.SQLExecution
 import org.apache.spark.sql.execution.ui.{SparkListenerSQLExecutionEnd, SparkListenerSQLExecutionStart, SparkPlanGraph}
 
 
 object QueryMetricSerializer {
 
-    def updateMetrics(executionEnd: SparkListenerSQLExecutionEnd, queryMetricTuple: QueryMetricTuple, jobIds: Seq[Int], jobInfo: scala.collection.mutable.Map[Int, JobMetricTuple] ) = {
+    private def _updateMetrics(executionEnd: SparkListenerSQLExecutionEnd, queryMetricTuple: QueryMetricTuple, jobIds: Seq[Int], jobInfo: scala.collection.mutable.Map[Int, JobMetricTuple] ) = {
         var jobMetricTuples = Seq[JobMetricTuple]()
 
         for(jobId <- jobIds){
             jobMetricTuples :+ jobInfo(jobId)
         }
 
-        _updateMetrics(executionEnd, queryMetricTuple, jobIds.map(jobInfo(_)))
+        updateMetrics(executionEnd, queryMetricTuple, jobIds.map(jobInfo(_)))
     }
 
 
 
-    def _updateMetrics(executionEnd: SparkListenerSQLExecutionEnd, queryMetricTuple: QueryMetricTuple, jobMetricTuples: Seq[JobMetricTuple]): QueryMetricTuple = {
+    def updateMetrics(executionEnd: SparkListenerSQLExecutionEnd, queryMetricTuple: QueryMetricTuple, jobMetricTuples: Seq[JobMetricTuple]): QueryMetricTuple = {
         val duration = executionEnd.time - queryMetricTuple.startTimestamp
         var numTasks = 0
         var totalDiskSpill = 0L
@@ -48,10 +47,10 @@ object QueryMetricSerializer {
             totalShuffleReadBytes += jobMetricTuple.totalShuffleReadBytes
             totalShuffleWriteBytes += jobMetricTuple.totalShuffleWriteBytes
         }
-        val queryExecution = SQLExecution.getQueryExecution(executionEnd.executionId)
-
+//        val queryExecution = SQLExecution.getQueryExecution(executionEnd.executionId)
 
         QueryMetricTuple(queryMetricTuple.executionId,
+            jobMetricTuples.map(_.jobId).toString(),
             queryMetricTuple.description,
             queryMetricTuple.startTimestamp,
             queryMetricTuple.sparkPlan,
@@ -69,6 +68,7 @@ object QueryMetricSerializer {
         }
 
         QueryMetricTuple(executionStart.executionId,
+            "",
             executionStart.description,
             executionStart.time,
             executionStart.sparkPlanInfo.simpleString)

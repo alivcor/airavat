@@ -16,7 +16,6 @@ import java.util.concurrent.TimeUnit
 
 import com.google.gson.GsonBuilder
 import com.iresium.airavat.sickle.Sickle
-import objects.QueryInfoTuple
 import org.apache.spark.sql.execution.QueryExecution
 import org.joda.time.DateTime
 
@@ -34,7 +33,7 @@ object QueryPlanSerializer {
             .registerTypeAdapter(classOf[DateTime], new DateTimeSerializer)
             .create()
 
-        QueryInfoTuple(executionId,
+        QueryPlanTuple(executionId,
             funcName,
             startTimestamp / 1000,
             System.currentTimeMillis()/1000,

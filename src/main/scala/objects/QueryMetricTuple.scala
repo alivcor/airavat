@@ -13,6 +13,7 @@
 package com.iresium.airavat
 
 case class QueryMetricTuple(executionId: Long,
+                            jobIds: String,
                             description: String,
                             startTimestamp: Long,
                             sparkPlan: String,

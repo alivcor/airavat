@@ -24,15 +24,16 @@ import scala.util.{Failure, Success}
 
 object AiravatApp extends App {
 
+    val DB_NAME = "airavat_db"
     def createJobsTable() = {
 
         val airavatJobs = TableQuery[AiravatJobMetric]
-        val db = Database.forConfig("sqlite1")
+        val db = Database.forConfig(DB_NAME)
 //        val config: Config = ConfigFactory.load("assets/application.conf")
 
         //#create
         val setup = DBIO.seq(
-            (airavatJobs.schema).create
+            (airavatJobs.schema).createIfNotExists
 //            airavatJobs += ("test", 1,1L,0,131L,0L,66536L,0L,8826L,0L,1L,"2021-02-22T17:06:20.756")
         )
 
@@ -49,11 +50,11 @@ object AiravatApp extends App {
 
     def createQueriesTable() = {
         val airavatQueries = TableQuery[AiravatQueryMetric]
-        val db = Database.forConfig("sqlite1")
+        val db = Database.forConfig(DB_NAME)
         //        val config: Config = ConfigFactory.load("assets/application.conf")
 
         val setup = DBIO.seq(
-            (airavatQueries.schema).create
+            (airavatQueries.schema).createIfNotExists
         )
 
         val setupFuture = db.run(setup)
@@ -66,8 +67,29 @@ object AiravatApp extends App {
         Await.result(setupFuture, Duration.Inf)
     }
 
-//    createQueriesTable()
-//    createJobsTable()
+
+    def createPlansTable() = {
+        val airavatPlans = TableQuery[AiravatQueryPlan]
+        val db = Database.forConfig(DB_NAME)
+        //        val config: Config = ConfigFactory.load("assets/application.conf")
+
+        val setup = DBIO.seq(
+            (airavatPlans.schema).createIfNotExists
+        )
+
+        val setupFuture = db.run(setup)
+
+        setupFuture onComplete {
+            case Success(v) => println(v)
+            case Failure(t) => println("An error has occurred: " + t.getMessage)
+        }
+
+        Await.result(setupFuture, Duration.Inf)
+    }
+
+    createQueriesTable()
+    createJobsTable()
+    createPlansTable()
     val spark = SparkSession
         .builder()
         .master("local")
@@ -76,7 +98,7 @@ object AiravatApp extends App {
         .config("spark.airavat.maxTotalDuration", "3600")
         .config("spark.airavat.collectJobMetrics", "true")
         .config("spark.airavat.collectQueryMetrics", "true")
-//        .config("spark.airavat.collectQueryMetrics", "true")
+        .config("spark.airavat.collectQueryPlan", "true")
         .config("spark.debug.maxToStringFields", 20000)
         .getOrCreate()
 

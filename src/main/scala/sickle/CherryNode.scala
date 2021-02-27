@@ -14,7 +14,7 @@ package com.iresium.airavat.sickle
 
 import org.apache.spark.sql.execution._
 import org.apache.spark.sql.execution.aggregate.HashAggregateExec
-import org.apache.spark.sql.execution.exchange.ShuffleExchangeExec
+import org.apache.spark.sql.execution.exchange.{BroadcastExchangeExec, ShuffleExchangeExec}
 
 
 
@@ -70,6 +70,10 @@ class TakeOrderedAndProjectExecNode(t: TakeOrderedAndProjectExec) extends Cherry
     var stringExp: String = ""
 }
 
+class BroadcastExchangeExecNode(t: BroadcastExchangeExec) extends CherryNode {
+    val broadcastMode = t.mode
+    val metrics = t.metrics
+}
 
 
 class UnknownNode(t: SparkPlan) extends CherryNode {

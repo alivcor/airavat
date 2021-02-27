@@ -1,4 +1,4 @@
-package objects
+package com.iresium.airavat
 
 /*
  * Created by @alivcor (Abhinandan Dubey) on 2/26/21 
@@ -12,10 +12,10 @@ package objects
  * limitations under the License.
  */
 
-case class QueryInfoTuple(executionId: Long,
+case class QueryPlanTuple(executionId: Long,
                             description: String,
                             startTimestamp: Long,
-                            endTimestamp: Long = 0L,
+                            endTimestamp: Long,
                             sparkPlan: String,
                             logicalPlan: String = "",
                             optimizedPlan: String =  "",

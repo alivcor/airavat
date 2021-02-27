@@ -13,7 +13,7 @@
 package com.iresium.airavat
 
 import com.google.gson._
-import org.apache.spark.SparkConf
+import org.apache.spark.{JobExecutionStatus, SparkConf}
 import org.apache.spark.scheduler.{SparkListener, SparkListenerEvent, _}
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.execution.SQLExecution
@@ -33,13 +33,14 @@ import scala.util.{Failure, Success, Try}
 class AiravatJobListener(conf: SparkConf) extends SparkListener {
 
     var appId = ""
-    val db = Database.forConfig("sqlite1")
+    val db = Database.forConfig(Try(conf.get("spark.airavat.dbName")).getOrElse("airavat_db"))
     val airavatJobMetric = TableQuery[AiravatJobMetric]
     val airavatQueryMetric = TableQuery[AiravatQueryMetric]
     var jobMap = scala.collection.mutable.Map[Int, Int] ()
     var jobInfo = scala.collection.mutable.Map[Int, JobMetricTuple] ()
     var queryMap = scala.collection.mutable.Map[Long, Seq[Int]] ()
     var queryInfo = scala.collection.mutable.Map[Long, QueryMetricTuple]()
+    var disposableJobsQueue = scala.collection.mutable.Queue[Int]()
     val gson = new GsonBuilder()
         .registerTypeHierarchyAdapter(classOf[Seq[Any]], new ListSerializer)
         .registerTypeHierarchyAdapter(classOf[Map[Any, Any]], new MapSerializer)
@@ -61,15 +62,21 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
                 logger.debug(s" queryMap : " + queryMap)
 
                 if(queryMap.contains(executionEnd.executionId)){
-                    queryInfo(executionEnd.executionId) = QueryMetricSerializer._updateMetrics(executionEnd, queryInfo(executionEnd.executionId), (queryMap(executionEnd.executionId)).map(jobInfo(_)))
-
-                    // TODO : Evict Jobs associated
+                    try {
+                        queryInfo(executionEnd.executionId) = QueryMetricSerializer.updateMetrics(executionEnd, queryInfo(executionEnd.executionId), (queryMap(executionEnd.executionId)).map(jobInfo(_)))
+                        if(Try(conf.get("spark.airavat.collectQueryMetrics").toBoolean).getOrElse(false)) logQueryMetrics(queryInfo(executionEnd.executionId))
+                    }
+                    catch {
+                        case e: Exception => logger.warn(s"An error occurred while generating metrics for query " + e.getStackTrace)
+                    } finally {
+                        queryMap(executionEnd.executionId).foreach(evictJob(_))
+                        evictQuery(executionEnd.executionId)
+                        flushJobs()
+                    }
                 } else {
                     logger.warn("Execution ID " + executionEnd.executionId + " not found in queryMap")
                 }
 
-
-                if(Try(conf.get("spark.airavat.collectQueryMetrics").toBoolean).getOrElse(false)) logQueryMetrics(queryInfo(executionEnd.executionId))
             case _ =>
         }
     }
@@ -82,6 +89,7 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
                 val addQuerySeq = DBIO.seq(
                     airavatQueryMetric += (appId,
                         queryMetricTuple.executionId,
+                        queryMetricTuple.jobIds,
                         queryMetricTuple.description,
                         queryMetricTuple.startTimestamp,
                         queryMetricTuple.sparkPlan,
@@ -114,21 +122,38 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
     override def onApplicationStart(applicationStart: SparkListenerApplicationStart): Unit = {
         logger.info(s"Tracking Application - " + applicationStart.appId)
         appId = applicationStart.appId.getOrElse("Unknown")
-        SparkSession.builder().getOrCreate().sessionState.listenerManager.register(new AiravatQueryListener)
+        SparkSession.builder().getOrCreate().sessionState.listenerManager.register(new AiravatQueryListener(conf))
     }
 
 
-    private def evictJobs(jobs: Seq[Int]): Unit = {
+    private def evictJob(evictableJob: Int): Unit = {
         try {
-//            jobInfo -= jobId
-            jobs.foreach(jobInfo.remove)
+            jobMap.remove(evictableJob)
+            jobInfo.remove(evictableJob)
         } catch {
-            case e: Exception => { logger.warn(s"Failed to evict job Ids " + jobs + " from job Metrics : " + e.getMessage)}
+            case e: Exception => { logger.warn(s"Failed to evict job Id " + evictableJob + " : " + e.getMessage)}
         }
     }
 
-    private def evictJobMetrics(jobId: Int): Unit = {
-        // TODO - Evict Jobs which don't have an execution ID but are clogging up and complete/failed
+    private def flushJobs() = {
+        var maxJobsRetain = Try(conf.get("spark.airavat.maxJobRetain").toInt).getOrElse(100)
+        try {
+            while(maxJobsRetain > 0 && disposableJobsQueue.length > 0){
+                evictJob(disposableJobsQueue.dequeue())
+                maxJobsRetain -= 1
+            }
+        } catch {
+            case e: Exception => { logger.warn(s"Failed to flush Jobs " + e.getMessage)}
+        }
+    }
+
+    private def evictQuery(evictableQuery: Long): Unit = {
+        try {
+            queryMap.remove(evictableQuery)
+            queryInfo.remove(evictableQuery)
+        } catch {
+            case e: Exception => { logger.warn(s"Failed to evict query Id " + evictableQuery + " : " + e.getMessage)}
+        }
     }
 
     override def onJobStart(jobStart: SparkListenerJobStart) {
@@ -143,6 +168,8 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
             } else {
                 queryMap += (executionId -> Seq(jobStart.jobId))
             }
+        } else {
+            disposableJobsQueue.enqueue(jobStart.jobId)
         }
 
 
@@ -153,8 +180,21 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
 
         jobInfo += (jobStart.jobId -> jobMetricTuple)
 
-//        MetricAnalyzer.analyzeTaskCount(jobMetricTuple) #TODO
-//        val statusTracker = spark.sparkContext.statusTracker
+        if(conf.contains("spark.airavat.maxJobDuration")) {
+            val statusTracker = SparkSession.builder().getOrCreate().sparkContext.statusTracker
+            val f = Future {
+                var timeLeft = Try(conf.get("spark.airavat.maxJobDuration").toInt).getOrElse(Integer.MAX_VALUE)
+                while(timeLeft >= 0 && !statusTracker.getJobInfo(jobStart.jobId).isEmpty && (statusTracker.getJobInfo(jobStart.jobId).get.status() == JobExecutionStatus.RUNNING || statusTracker.getJobInfo(jobStart.jobId).get.status() == JobExecutionStatus.UNKNOWN))
+                {
+                    Thread.sleep(1000)
+                    timeLeft -= 1
+                }
+                if(!statusTracker.getJobInfo(jobStart.jobId).isEmpty && (statusTracker.getJobInfo(jobStart.jobId).get.status() == JobExecutionStatus.RUNNING || statusTracker.getJobInfo(jobStart.jobId).get.status() == JobExecutionStatus.UNKNOWN))
+                {
+                    SparkSession.builder().getOrCreate().sparkContext.cancelJob(jobStart.jobId)
+                }
+            }
+        }
 
     }
 
@@ -190,13 +230,8 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
 
         val taskMetricTuple = TaskMetricSerializer.serialize(taskEnd, jobMap)
 
-        if(Try(conf.get("spark.airavat.collectTaskMetrics").toBoolean).getOrElse(false)){
-
-        }
-
         if(jobMap.contains(taskEnd.stageId) && jobInfo.contains(jobMap(taskEnd.stageId))){
             jobInfo(jobMap(taskEnd.stageId)) = JobMetricSerializer.updateDerivedMetrics(jobInfo(jobMap(taskEnd.stageId)), taskEnd, taskMetricTuple)
-            MetricAnalyzer.analyzeTaskMetrics(taskMetricTuple)
             MetricAnalyzer.analyzeJobMetrics(jobInfo(jobMap(taskEnd.stageId)))
         }
 
