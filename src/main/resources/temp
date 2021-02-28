@@ -1,0 +1,21 @@
+ ArrayBuffer((95,SQLPlanMetric(shuffle records written,95,sum)),
+ (96,SQLPlanMetric(shuffle write time,96,nsTiming)),
+ (93,SQLPlanMetric(records read,93,sum)),
+ (91,SQLPlanMetric(local bytes read,91,size)),
+ (92,SQLPlanMetric(fetch wait time,92,timing)),
+ (89,SQLPlanMetric(remote bytes read,89,size)),
+ (88,SQLPlanMetric(local blocks read,88,sum)),
+ (87,SQLPlanMetric(remote blocks read,87,sum)),
+ (90,SQLPlanMetric(remote bytes read to disk,90,size)),
+ (94,SQLPlanMetric(shuffle bytes written,94,size)),
+ (98,SQLPlanMetric(number of output rows,98,sum)),
+ (97,SQLPlanMetric(duration,97,timing)),
+ (100,SQLPlanMetric(number of files read,100,sum)),
+ (103,SQLPlanMetric(dynamic partition pruning time,103,timing)),
+ (101,SQLPlanMetric(metadata time,101,timing)),
+ (102,SQLPlanMetric(size of files read,102,size)),
+ (99,SQLPlanMetric(number of output rows,99,sum)))
+21/0
+
+
+
