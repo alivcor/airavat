@@ -39,7 +39,7 @@ const Users = () => {
 
   return (
     <CRow>
-      <CCol xl={6}>
+      <CCol xl={12}>
         <CCard>
           <CCardHeader>
             Users

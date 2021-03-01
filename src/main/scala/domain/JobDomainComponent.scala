@@ -14,7 +14,9 @@ package com.iresium.airavat
 
 import slick.jdbc.PostgresProfile.api._
 
-class AiravatJobMetric(tag: Tag) extends Table[(String, Int, Long, Int, Long, Long, Long, Long, Long, Long, Long, String)](tag, "AIRAVAT_JOB_INFO") {
+class AiravatJobMetric(tag: Tag) extends Table[(String, String, String, Int, Long, Int, Long, Long, Long, Long, Long, Long, Long, String)](tag, "AIRAVAT_JOB_INFO") {
+    def hostname = column[String]("hostname")
+    def ipAddress = column[String]("ipAddress")
     def appId = column[String]("appId")
     def jobId = column[Int]("jobId") // This is the primary key column
     def numStages = column[Long]("numStages")
@@ -28,7 +30,7 @@ class AiravatJobMetric(tag: Tag) extends Table[(String, Int, Long, Int, Long, Lo
     def totalShuffleWriteBytes = column[Long]("totalShuffleWriteBytes")
     def timestamp = column[String]("timestamp")
     // Every table needs a * projection with the same type as the table's type parameter
-    def * = (appId, jobId, numStages, numTasks, totalDuration, totalDiskSpill, totalBytesRead, totalBytesWritten, totalResultSize, totalShuffleReadBytes, totalShuffleWriteBytes, timestamp)
+    def * = (hostname, ipAddress, appId, jobId, numStages, numTasks, totalDuration, totalDiskSpill, totalBytesRead, totalBytesWritten, totalResultSize, totalShuffleReadBytes, totalShuffleWriteBytes, timestamp)
 }
 
 

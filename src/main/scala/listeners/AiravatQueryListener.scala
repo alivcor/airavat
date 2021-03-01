@@ -13,15 +13,15 @@
 package com.iresium.airavat
 
 
+import java.net.InetAddress
+
 import org.apache.spark.SparkConf
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.QueryExecution
 import org.apache.spark.sql.util.QueryExecutionListener
 import org.slf4j.LoggerFactory
 
-
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import slick.dbio.DBIO
 import slick.jdbc.JdbcBackend.Database
 import slick.jdbc.PostgresProfile.api._
@@ -65,7 +65,9 @@ class AiravatQueryListener(conf: SparkConf)  extends QueryExecutionListener with
 
         try{
             val addPlanSeq = DBIO.seq(
-                airavatQueryPlan  += (appId,
+                airavatQueryPlan  += (InetAddress.getLocalHost.getHostName,
+                    InetAddress.getLocalHost.getHostAddress,
+                    appId,
                     serializedPlanInfo.executionId,
                     serializedPlanInfo.description,
                     serializedPlanInfo.startTimestamp,

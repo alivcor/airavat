@@ -14,7 +14,9 @@ package com.iresium.airavat
 
 import slick.jdbc.PostgresProfile.api._
 
-class AiravatQueryPlan(tag: Tag) extends Table[(String, Long, String, Long, Long, String, String, String, String, String, Long, String, String, String)](tag, "AIRAVAT_QUERY_PLAN_INFO") {
+class AiravatQueryPlan(tag: Tag) extends Table[(String, String, String, Long, String, Long, Long, String, String, String, String, String, Long, String, String, String)](tag, "AIRAVAT_QUERY_PLAN_INFO") {
+    def hostname = column[String]("hostname")
+    def ipAddress = column[String]("ipAddress")
     def appId = column[String]("appId")
     def executionId = column[Long]("executionId")
     def description = column[String]("description")
@@ -30,7 +32,7 @@ class AiravatQueryPlan(tag: Tag) extends Table[(String, Long, String, Long, Long
     def serializedPlan = column[String]("serializedPlan")
     def exceptionStackTrace = column[String]("exceptionStackTrace")
     // Every table needs a * projection with the same type as the table's type parameter
-    def * = (appId, executionId, description, startTimestamp, endTimestamp, sparkPlan, logicalPlan, optimizedPlan, executedPlan, queryStats, duration, metrics, serializedPlan, exceptionStackTrace)
+    def * = (hostname, ipAddress, appId, executionId, description, startTimestamp, endTimestamp, sparkPlan, logicalPlan, optimizedPlan, executedPlan, queryStats, duration, metrics, serializedPlan, exceptionStackTrace)
 }
 
 

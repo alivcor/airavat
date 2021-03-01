@@ -15,7 +15,7 @@ const loading = (
   </div>
 )
 
-const TheContent = () => {
+const TheContent = (props) => {
   return (
     <main className="c-main">
       <CContainer fluid>

@@ -19,6 +19,16 @@ const TheLayout = React.lazy(() => import('./containers/TheLayout'));
 
 class App extends Component {
 
+  componentDidMount() {
+    fetch('http://localhost:8000/apps')
+    .then(res => res.json())
+    .then((data) => {
+      console.log(data);
+      this.setState({ apps: data })
+    })
+    .catch(console.log)
+  }
+
   render() {
     return (
       <HashRouter>

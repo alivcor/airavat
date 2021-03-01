@@ -87,9 +87,29 @@ object AiravatApp extends App {
         Await.result(setupFuture, Duration.Inf)
     }
 
+    def createAppsTable() = {
+        val airavatApps = TableQuery[AiravatApplication]
+        val db = Database.forConfig(DB_NAME)
+        //        val config: Config = ConfigFactory.load("assets/application.conf")
+
+        val setup = DBIO.seq(
+            (airavatApps.schema).createIfNotExists
+        )
+
+        val setupFuture = db.run(setup)
+
+        setupFuture onComplete {
+            case Success(v) => println(v)
+            case Failure(t) => println("An error has occurred: " + t.getMessage)
+        }
+
+        Await.result(setupFuture, Duration.Inf)
+    }
+
     createQueriesTable()
     createJobsTable()
     createPlansTable()
+    createAppsTable()
     val spark = SparkSession
         .builder()
         .master("local")

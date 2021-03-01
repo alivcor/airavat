@@ -13,14 +13,15 @@ import CIcon from '@coreui/icons-react'
 import ChartLineSimple from '../charts/ChartLineSimple'
 import ChartBarSimple from '../charts/ChartBarSimple'
 
-const WidgetsDropdown = () => {
+const WidgetsDropdown = (props) => {
   // render
+  
   return (
     <CRow>
       <CCol sm="6" lg="3">
         <CWidgetDropdown
           color="gradient-primary"
-          header="5"
+          header={props.apps.length}
           text="Active Applications"
           footerSlot={
             <ChartLineSimple
@@ -41,7 +42,7 @@ const WidgetsDropdown = () => {
       <CCol sm="6" lg="3">
         <CWidgetDropdown
           color="gradient-info"
-          header="270"
+          header={props.completedJobs}
           text="Completed Jobs"
           footerSlot={
             <ChartLineSimple
@@ -63,7 +64,7 @@ const WidgetsDropdown = () => {
       <CCol sm="6" lg="3">
         <CWidgetDropdown
           color="gradient-danger"
-          header="18"
+          header={props.failedJobs}
           text="Failed Jobs"
           footerSlot={
             <ChartLineSimple
@@ -88,7 +89,7 @@ const WidgetsDropdown = () => {
       <CCol sm="6" lg="3">
         <CWidgetDropdown
           color="gradient-success"
-          header="198"
+          header={props.completedQueries}
           text="Completed Queries"
           footerSlot={
             <ChartBarSimple

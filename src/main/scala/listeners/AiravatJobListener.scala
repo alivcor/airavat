@@ -12,6 +12,7 @@
 
 package com.iresium.airavat
 
+import java.net._
 import com.google.gson._
 import org.apache.spark.{JobExecutionStatus, SparkConf}
 import org.apache.spark.scheduler.{SparkListener, SparkListenerEvent, _}
@@ -36,6 +37,7 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
     val db = Database.forConfig(Try(conf.get("spark.airavat.dbName")).getOrElse("airavat_db"))
     val airavatJobMetric = TableQuery[AiravatJobMetric]
     val airavatQueryMetric = TableQuery[AiravatQueryMetric]
+    val airavatApplication = TableQuery[AiravatApplication]
     var jobMap = scala.collection.mutable.Map[Int, Int] ()
     var jobInfo = scala.collection.mutable.Map[Int, JobMetricTuple] ()
     var queryMap = scala.collection.mutable.Map[Long, Seq[Int]] ()
@@ -87,7 +89,9 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
             try{
 
                 val addQuerySeq = DBIO.seq(
-                    airavatQueryMetric += (appId,
+                    airavatQueryMetric += (InetAddress.getLocalHost.getHostName,
+                        InetAddress.getLocalHost.getHostAddress,
+                        appId,
                         queryMetricTuple.executionId,
                         queryMetricTuple.jobIds,
                         queryMetricTuple.description,
@@ -123,6 +127,26 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
         logger.info(s"Tracking Application - " + applicationStart.appId)
         appId = applicationStart.appId.getOrElse("Unknown")
         SparkSession.builder().getOrCreate().sessionState.listenerManager.register(new AiravatQueryListener(conf))
+        try{
+            val addAppSeq = DBIO.seq(
+                airavatApplication += (InetAddress.getLocalHost.getHostName,
+                    InetAddress.getLocalHost.getHostAddress,
+                    appId, System.currentTimeMillis / 1000, 0L)
+            )
+            val logAppF = db.run(addAppSeq)
+
+
+            logAppF onComplete {
+                case Success(v) => logger.info("Logged app " + appId + " to the sink")
+                case Failure(t) => logger.warn("An error occurred while logging jobMetrics to sink: " + t.getMessage)
+            }
+
+            Await.result(logAppF, 120 seconds)
+
+        } catch {
+            case e: Exception => { logger.warn(s"Failed to log jobMetrics to sink: " + e.getMessage)}
+        }
+
     }
 
 
@@ -205,7 +229,9 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
             try{
                 val jobDetails = jobInfo(jobEnd.jobId)
                 val addJobsSeq = DBIO.seq(
-                    airavatJobMetric += (appId, jobDetails.jobId, jobDetails.numStages, jobDetails.numTasks, jobDetails.totalDuration, jobDetails.totalDiskSpill, jobDetails.totalBytesRead, jobDetails.totalBytesWritten, jobDetails.totalResultSize, jobDetails.totalShuffleReadBytes, jobDetails.totalShuffleWriteBytes, jobDetails.timestamp)
+                    airavatJobMetric += (InetAddress.getLocalHost.getHostName,
+                        InetAddress.getLocalHost.getHostAddress,
+                        appId, jobDetails.jobId, jobDetails.numStages, jobDetails.numTasks, jobDetails.totalDuration, jobDetails.totalDiskSpill, jobDetails.totalBytesRead, jobDetails.totalBytesWritten, jobDetails.totalResultSize, jobDetails.totalShuffleReadBytes, jobDetails.totalShuffleWriteBytes, jobDetails.timestamp)
                 )
                 val logJobMetricsF = db.run(addJobsSeq)
 
