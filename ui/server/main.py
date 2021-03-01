@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from model.Applications import Applications
 from model.Jobs import Jobs
+from model.Queries import Queries
 from controllers.session import AiravatSession
 import logging
 import logging.config
@@ -19,6 +20,7 @@ app.add_middleware(
 session = AiravatSession()
 apps = Applications(session)
 jobs = Jobs(session)
+queries = Queries(session)
 logging.basicConfig(level=logging.DEBUG, format='%(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -34,4 +36,8 @@ def getApplications():
 @app.get("/jobs")
 def getJobs():
     return jobs.fetchAll()
+
+@app.get("/queries")
+def getQueries():
+    return queries.fetchAll()
 

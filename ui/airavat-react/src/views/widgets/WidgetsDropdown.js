@@ -13,15 +13,20 @@ import CIcon from '@coreui/icons-react'
 import ChartLineSimple from '../charts/ChartLineSimple'
 import ChartBarSimple from '../charts/ChartBarSimple'
 
+
+var appCounts = [];
+
 const WidgetsDropdown = ({setAppState}) => {
   // render
   console.log(setAppState);
+  appCounts.push(setAppState.length)
+  console.log("appCounts " + appCounts);
   return (
     <CRow>
       <CCol sm="6" lg="3">
         <CWidgetDropdown
           color="gradient-primary"
-          header={setAppState.length}
+          header={setAppState.apps.length}
           text="Active Applications"
           footerSlot={
             <ChartLineSimple
@@ -42,7 +47,7 @@ const WidgetsDropdown = ({setAppState}) => {
       <CCol sm="6" lg="3">
         <CWidgetDropdown
           color="gradient-info"
-          header="5"
+          header={setAppState.jobs.length}
           text="Completed Jobs"
           footerSlot={
             <ChartLineSimple
@@ -55,6 +60,7 @@ const WidgetsDropdown = ({setAppState}) => {
               label="Jobs"
               labels="months"
             />
+            // <CIcon size={'4xl'} name={'cilSettings'} style={{height: '85px'}} className="float-right"/>
           }
         >
          
@@ -89,7 +95,7 @@ const WidgetsDropdown = ({setAppState}) => {
       <CCol sm="6" lg="3">
         <CWidgetDropdown
           color="gradient-success"
-          header="18"
+          header={setAppState.queries.length}
           text="Completed Queries"
           footerSlot={
             <ChartBarSimple

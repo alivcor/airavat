@@ -32,6 +32,26 @@ class App extends Component {
       // console.log(this.state.apps)
     })
     .catch(console.log)
+
+    fetch('http://localhost:8000/jobs')
+    .then(res => res.json())
+    .then((data) => {
+      console.log(data);
+      this.setState({ jobs: data })
+      // console.log(this.state.apps)
+    })
+    .catch(console.log)
+
+    fetch('http://localhost:8000/queries')
+    .then(res => res.json())
+    .then((data) => {
+      console.log(data);
+      this.setState({ queries: data })
+      // console.log(this.state.apps)
+    })
+    .catch(console.log)
+
+
   }
 
 
@@ -44,7 +64,7 @@ class App extends Component {
               <Route exact path="/register" name="Register Page" render={props => <Register {...props}/>} />
               <Route exact path="/404" name="Page 404" render={props => <Page404 {...props}/>} />
               <Route exact path="/500" name="Page 500" render={props => <Page500 {...props}/>} /> */}
-              <Route path="/" name="Home" render={props => <TheLayout {...props}  setAppState={this.state.apps}/>} />
+              <Route path="/" name="Home" render={props => <TheLayout {...props}  setAppState={this.state}/>} />
             </Switch>
           </React.Suspense>
       </HashRouter>
