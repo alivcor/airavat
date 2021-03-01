@@ -94,7 +94,7 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
                         InetAddress.getLocalHost.getHostAddress,
                         appId,
                         queryMetricTuple.executionId,
-                        queryMetricTuple.jobIds,
+                        gson.toJson(queryMetricTuple.jobIds),
                         queryMetricTuple.description,
                         queryMetricTuple.startTimestamp,
                         queryMetricTuple.sparkPlan,

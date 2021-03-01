@@ -9,28 +9,33 @@ import {
   CCardBody,
   CBadge,
   CButton,
-  CCollapse
+  CCollapse,
+  CModal,
+  CModalBody,
+  CModalHeader,
+  CModalFooter,
+  CModalTitle
 } from '@coreui/react'
 import { rgbToHex } from '@coreui/utils'
 import { DocsLink } from 'src/reusable'
 
 
 // def hostname = column[String]("hostname")
-//     def ipAddress = column[String]("ipAddress")
-//     def appId = column[String]("appId")
-//     def executionId = column[Long]("executionId")
-//     def jobIds = column[String]("jobIds")
-//     def description = column[String]("description")
-//     def startTimestamp = column[Long]("startTimestamp")
-//     def sparkPlan = column[String]("sparkPlan")
-//     def endTimestamp = column[Long]("endTimestamp")
-//     def numTasks = column[Int]("numTasks")
-//     def totalDiskSpill = column[Long]("totalDiskSpill")
-//     def totalBytesRead = column[Long]("totalBytesRead")
-//     def totalBytesWritten = column[Long]("totalBytesWritten")
-//     def totalResultSize = column[Long]("totalResultSize")
-//     def totalShuffleReadBytes = column[Long]("totalShuffleReadBytes")
-//     def totalShuffleWriteBytes = column[Long]("totalShuffleWriteBytes")
+// def ipAddress = column[String]("ipAddress")
+// def appId = column[String]("appId")
+// def executionId = column[Long]("executionId")
+// def description = column[String]("description")
+// def startTimestamp = column[Long]("startTimestamp")
+// def endTimestamp = column[Long]("endTimestamp")
+// def sparkPlan = column[String]("sparkPlan")
+// def logicalPlan = column[String]("logicalPlan")
+// def optimizedPlan = column[String]("optimizedPlan")
+// def executedPlan = column[String]("executedPlan")
+// def queryStats = column[String]("queryStats")
+// def duration = column[Long]("duration")
+// def metrics = column[String]("metrics")
+// def serializedPlan = column[String]("serializedPlan")
+// def exceptionStackTrace = column[String]("exceptionStackTrace")
 
 const fields = [
   { 
@@ -62,13 +67,6 @@ const fields = [
     filter: true
   },
   { 
-    key: 'jobIds', 
-    label: 'Job IDs',
-    _style: { width: '5%'} ,
-    sorter: true,
-    filter: true
-  },
-  { 
     key: 'description', 
     label: 'Description',
     _style: { width: '5%'} ,
@@ -90,59 +88,31 @@ const fields = [
     filter: false
   },
   { 
-    key: 'sparkPlan', 
+    key: 'queryStats', 
     label: 'Spark Plan',
     _style: { width: '5%'} ,
     sorter: true,
     filter: false
   },
   { 
-    key: 'numTasks', 
-    label: 'Tasks',
+    key: 'duration', 
+    label: 'Duration',
     _style: { width: '5%'} ,
     sorter: true,
     filter: false
   },
   { 
-    key: 'totalDiskSpill', 
-    label: 'Disk Spill',
+    key: 'metrics', 
+    label: 'Metrics',
     _style: { width: '5%'} ,
     sorter: true,
     filter: false
   },
   { 
-    key: 'totalBytesRead', 
-    label: 'Total Read',
+    key: 'serializedPlan', 
+    label: 'Plan Visual',
     _style: { width: '5%'} ,
-    sorter: true,
-    filter: false
-  },
-  { 
-    key: 'totalBytesWritten', 
-    label: 'Total Write',
-    _style: { width: '5%'} ,
-    sorter: true,
-    filter: false
-  },
-  { 
-    key: 'totalResultSize', 
-    label: 'Result Size',
-    _style: { width: '5%'} ,
-    sorter: true,
-    filter: false
-  },
-  { 
-    key: 'totalShuffleReadBytes', 
-    label: 'Shuffle Read',
-    _style: { width: '5%'} ,
-    sorter: true,
-    filter: false
-  },
-  { 
-    key: 'totalShuffleWriteBytes', 
-    label: 'Shuffle Write',
-    _style: { width: '5%'} ,
-    sorter: true,
+    sorter: false,
     filter: false
   }
 ]
@@ -151,6 +121,25 @@ const fields = [
 
 
 class Queries extends Component {
+
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      modal: false,
+      execId: '',
+      execPlan: '',
+    };
+
+    this.toggle = this.toggle.bind(this);
+  }
+
+  toggle() {
+    this.setState({
+      modal: !this.state.modal,
+    });
+
+  }
 
   state = {
     apps: []
@@ -169,7 +158,7 @@ class Queries extends Component {
 
   //{details.includes(index) ? 'Hide' : 'Show'}
   timeConverter(UNIX_timestamp){
-    var a = new Date(UNIX_timestamp * 1000);
+    var a = new Date(UNIX_timestamp);
     var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     var year = a.getFullYear();
     var month = months[a.getMonth()];
@@ -178,21 +167,32 @@ class Queries extends Component {
     var min = a.getMinutes();
     var sec = a.getSeconds();
     var time = month + ' ' + date + ', ' + year + ' ' + hour + ':' + min + ':' + sec ;
-    console.log(time);
+    // console.log(time);
     return time;
   }
 
   render() {
+
+    
     return (
       <>
       <CCard>
         <CCardHeader>
-          Queries
+          Executions
           <DocsLink href="https://alivcor.github.io/airavat/"/>
         </CCardHeader>
         <CCardBody>
           <CRow>
             <CCol>
+            <CModal show={this.state.modal} onClose={this.toggle}>
+              <CModalHeader closeButton>Query Plan for Query {this.state.execId}</CModalHeader>
+              <CModalBody>
+              {this.state.execPlan}
+              </CModalBody>
+              <CModalFooter>
+                <CButton color="secondary" onClick={this.toggle}>Close</CButton>
+              </CModalFooter>
+            </CModal>
           <CDataTable
                     items={this.state.apps}
                     fields={fields}
@@ -234,14 +234,6 @@ class Queries extends Component {
                               </td>
                           )
                         },
-                      'jobIds':
-                          (item, index)=>{
-                            return (
-                              <td>
-                                {item.jobIds}
-                              </td>
-                          )
-                        },
                         'description':
                             (item, index)=>{
                               return (
@@ -254,7 +246,7 @@ class Queries extends Component {
                             (item, index)=>{
                               return (
                                 <td>
-                                  {item.startTimestamp}
+                                  {this.timeConverter(parseInt(item.startTimestamp))}
                                 </td>
                             )
                           },
@@ -262,74 +254,49 @@ class Queries extends Component {
                             (item, index)=>{
                               return (
                                 <td>
-                                  {item.endTimestamp}
+                                  {this.timeConverter(parseInt(item.endTimestamp))}
                                 </td>
                             )
                           },
-                        'sparkPlan':
+                        'queryStats':
                             (item, index)=>{
                               return (
                                 <td>
-                                  {item.sparkPlan}
+                                  <CButton onClick={() => {
+                                    this.setState({
+                                      modal: !this.state.modal,
+                                      execId: item.executionId,
+                                      execPlan: item.queryStats
+                                    })
+                                    this.toggle()
+                                    }} className="mr-1" >View Plan</CButton>
                                 </td>
                             )
                           },
-                        'numTasks':
+                        'duration':
                             (item, index)=>{
                               return (
                                 <td>
-                                  {item.numTasks}
+                                  {item.duration}
                                 </td>
                             )
                           },
-                          'totalDiskSpill':
+                          'metrics':
                               (item, index)=>{
                                 return (
                                   <td>
-                                    {(item.totalDiskSpill / 1000000).toFixed(2)}
+                                    {item.metrics}
                                   </td>
                               )
                             },
-                          'totalBytesRead':
+                          'serializedPlan':
                               (item, index)=>{
                                 return (
                                   <td>
-                                    {(item.totalBytesRead / 1000000).toFixed(2)}
+                                    {item.serializedPlan}
                                   </td>
                               )
-                            },
-                          'totalBytesWritten':
-                              (item, index)=>{
-                                return (
-                                  <td>
-                                    {(item.totalBytesWritten / 1000000).toFixed(2)}
-                                  </td>
-                              )
-                            },
-                          'totalResultSize':
-                              (item, index)=>{
-                                return (
-                                  <td>
-                                    {(item.totalResultSize / 1000000).toFixed(2)}
-                                  </td>
-                              )
-                            },
-                        'totalShuffleReadBytes':
-                            (item, index)=>{
-                              return (
-                                <td>
-                                  {(item.totalShuffleReadBytes / 1000000).toFixed(2)}
-                                </td>
-                            )
-                          },
-                        'totalShuffleWriteBytes':
-                            (item, index)=>{
-                              return (
-                                <td>
-                                  {(item.totalShuffleWriteBytes / 1000000).toFixed(2)}
-                                </td>
-                            )
-                          }
+                            }
                     }}
                   />
                   </CCol>

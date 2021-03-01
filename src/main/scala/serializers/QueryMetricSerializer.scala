@@ -50,7 +50,7 @@ object QueryMetricSerializer {
 //        val queryExecution = SQLExecution.getQueryExecution(executionEnd.executionId)
 
         QueryMetricTuple(queryMetricTuple.executionId,
-            jobMetricTuples.map(_.jobId).toString(),
+            jobMetricTuples.map(_.jobId),
             queryMetricTuple.description,
             queryMetricTuple.startTimestamp,
             queryMetricTuple.sparkPlan,
@@ -68,7 +68,7 @@ object QueryMetricSerializer {
         }
 
         QueryMetricTuple(executionStart.executionId,
-            "",
+            Seq(),
             executionStart.description,
             executionStart.time,
             executionStart.sparkPlanInfo.simpleString)

@@ -34,9 +34,15 @@ const _nav =  [
   },
   {
     _tag: 'CSidebarNavItem',
+    name: 'Executions',
+    to: '/executions',
+    icon: 'cil-grain',
+  },
+  {
+    _tag: 'CSidebarNavItem',
     name: 'Queries',
     to: '/queries',
-    icon: 'cil-grain',
+    icon: 'cil-layers',
   },
   {
     _tag: 'CSidebarNavItem',

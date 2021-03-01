@@ -7,7 +7,7 @@ import {
 } from './index'
 
 const TheLayout = ({ setAppState }) => {
-  console.log(setAppState);
+  // console.log(setAppState);
   return (
     <div className="c-app c-default-layout">
       <TheSidebar setAppState={setAppState}/>

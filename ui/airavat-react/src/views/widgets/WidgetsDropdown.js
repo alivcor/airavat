@@ -18,9 +18,10 @@ var appCounts = [];
 
 const WidgetsDropdown = ({setAppState}) => {
   // render
-  console.log(setAppState);
-  appCounts.push(setAppState.length)
-  console.log("appCounts " + appCounts);
+  // console.log(setAppState);
+  
+  // console.log("setAppState.appCountHistory");
+  // console.log(setAppState.appCountHistory);
   return (
     <CRow>
       <CCol sm="6" lg="3">
@@ -33,7 +34,7 @@ const WidgetsDropdown = ({setAppState}) => {
               pointed
               className="c-chart-wrapper mt-3 mx-3"
               style={{height: '70px'}}
-              dataPoints={[5, 9, 4, 4, 1, 7, 4, 5]}
+              dataPoints={setAppState.appCountHistory} //{[5, 9, 4, 4, 1, 7, 4, 5]}
               pointHoverBackgroundColor="primary"
               label="Apps"
               labels="months"
@@ -54,7 +55,7 @@ const WidgetsDropdown = ({setAppState}) => {
               pointed
               className="mt-3 mx-3"
               style={{height: '70px'}}
-              dataPoints={[]}
+              dataPoints={setAppState.completedJobCountHistory}
               pointHoverBackgroundColor="info"
               options={{ elements: { line: { tension: 0.00001 }}}}
               label="Jobs"
@@ -77,11 +78,11 @@ const WidgetsDropdown = ({setAppState}) => {
               className="mt-3"
               style={{height: '70px'}}
               backgroundColor="rgba(255,255,255,.2)"
-              dataPoints={[]}
+              dataPoints={setAppState.failedJobCountHistory}
               options={{ elements: { line: { borderWidth: 2.5 }}}}
               pointHoverBackgroundColor="warning"
-              label="Members"
-              labels="months"
+              label=""
+              labels=""
             />
           }
         >
@@ -95,15 +96,16 @@ const WidgetsDropdown = ({setAppState}) => {
       <CCol sm="6" lg="3">
         <CWidgetDropdown
           color="gradient-success"
-          header={setAppState.queries.length}
+          header={setAppState.executions.length}
           text="Completed Queries"
           footerSlot={
             <ChartBarSimple
               className="mt-3 mx-3"
               style={{height: '70px'}}
               backgroundColor="rgb(196, 201, 208)"
-              label="Members"
-              labels="months"
+              dataPoints={setAppState.completedExecutionCountHistory}
+              label=""
+              labels=""
             />
           }
         >

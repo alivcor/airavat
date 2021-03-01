@@ -69,7 +69,7 @@ ChartBarSimple.propTypes = {
 ChartBarSimple.defaultProps = {
   backgroundColor: 'rgba(0,0,0,.2)',
   dataPoints: [10, 22, 34, 46, 58, 70, 46, 23, 45, 78, 34, 12],
-  label: 'Sales'
+  label: ''
 };
 
 export default ChartBarSimple

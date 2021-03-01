@@ -163,6 +163,7 @@ export const icons = Object.assign({}, {
   cilCheckCircle,
   cilCode,
   cilCog,
+  cilLayers,
   cilCommentSquare,
   cilCreditCard,
   cilCursor,

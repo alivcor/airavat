@@ -17,37 +17,96 @@ const TheLayout = React.lazy(() => import('./containers/TheLayout'));
 // const Page404 = React.lazy(() => import('./views/pages/page404/Page404'));
 // const Page500 = React.lazy(() => import('./views/pages/page500/Page500'));
 
+
+if(window.sessionStorage.getItem("appCountHistory") === null){
+  console.log("appCountHistory is null");
+  window.sessionStorage.setItem("appCountHistory", JSON.stringify([0]));
+} 
+
+if(window.sessionStorage.getItem("completedJobCountHistory") === null) {
+  window.sessionStorage.setItem("completedJobCountHistory", JSON.stringify([0])) 
+}
+
+if(window.sessionStorage.getItem("failedJobCountHistory") === null) {
+  window.sessionStorage.setItem("failedJobCountHistory", JSON.stringify([0])) 
+}
+
+if(window.sessionStorage.getItem("completedExecutionCountHistory") === null) {
+  window.sessionStorage.setItem("completedExecutionCountHistory", JSON.stringify([0])) 
+}
+
+
 class App extends Component {
 
   state = {
-    apps: []
+    apps: [],
+    jobs: [],
+    queries: [],
+    appCountHistory: [],
+    completedJobCountHistory: [],
+    failedJobCountHistory: [],
+    completedExecutionCountHistory: []
   }
 
+  updateAppHistory(data){
+    var appCountHistory = JSON.parse(window.sessionStorage.getItem("appCountHistory"))
+    if(appCountHistory[appCountHistory.length-1] !== data.length){
+      appCountHistory.push(data.length)
+    }
+    window.sessionStorage.setItem("appCountHistory", JSON.stringify(appCountHistory))
+    return appCountHistory;
+  }
+
+  updateCompletedJobHistory(data){
+    var completedJobCountHistory = JSON.parse(window.sessionStorage.getItem("completedJobCountHistory"))
+    if(completedJobCountHistory[completedJobCountHistory.length-1] !== data.length){
+      completedJobCountHistory.push(data.length)
+    }
+    window.sessionStorage.setItem("completedJobCountHistory", JSON.stringify(completedJobCountHistory))
+    return completedJobCountHistory;
+  }
+
+  updateFailedJobHistory(data){
+    var failedJobCountHistory = JSON.parse(window.sessionStorage.getItem("failedJobCountHistory"))
+    if(failedJobCountHistory[failedJobCountHistory.length-1] !== data.length){
+      failedJobCountHistory.push(data.length)
+    }
+    window.sessionStorage.setItem("failedJobCountHistory", JSON.stringify(failedJobCountHistory))
+    return failedJobCountHistory;
+  }
+
+  updateCompletedExecutionHistory(data){
+    var completedExecutionCountHistory = JSON.parse(window.sessionStorage.getItem("completedExecutionCountHistory"))
+    if(completedExecutionCountHistory[completedExecutionCountHistory.length-1] !== data.length){
+      completedExecutionCountHistory.push(data.length)
+    }
+    window.sessionStorage.setItem("completedExecutionCountHistory", JSON.stringify(completedExecutionCountHistory))
+    return completedExecutionCountHistory;
+  }
+  
   componentDidMount() {
     fetch('http://localhost:8000/apps')
     .then(res => res.json())
     .then((data) => {
-      console.log(data);
       this.setState({ apps: data })
-      // console.log(this.state.apps)
+      this.setState({ appCountHistory: this.updateAppHistory(data) })
     })
     .catch(console.log)
 
     fetch('http://localhost:8000/jobs')
     .then(res => res.json())
     .then((data) => {
-      console.log(data);
       this.setState({ jobs: data })
-      // console.log(this.state.apps)
+      this.setState({ completedJobCountHistory: this.updateCompletedJobHistory(data) })
+      this.setState({ failedJobCountHistory: this.updateFailedJobHistory(data) })
     })
     .catch(console.log)
 
-    fetch('http://localhost:8000/queries')
+    fetch('http://localhost:8000/executions')
     .then(res => res.json())
     .then((data) => {
-      console.log(data);
-      this.setState({ queries: data })
-      // console.log(this.state.apps)
+      this.setState({ executions: data })
+      this.setState({ completedExecutionCountHistory: this.updateCompletedExecutionHistory(data) })
     })
     .catch(console.log)
 
