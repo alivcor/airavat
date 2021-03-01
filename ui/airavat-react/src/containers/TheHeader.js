@@ -23,7 +23,7 @@ import {
   TheHeaderDropdownTasks
 }  from './index'
 
-const TheHeader = () => {
+const TheHeader = ({setAppState}) => {
   const dispatch = useDispatch()
   const sidebarShow = useSelector(state => state.sidebarShow)
 
@@ -63,7 +63,7 @@ const TheHeader = () => {
       </CHeaderNav>
 
       <CHeaderNav className="px-3">
-        <TheHeaderDropdownNotif/>
+        <TheHeaderDropdownNotif  setAppState={setAppState}/>
         {/* <TheHeaderDropdownTasks/> */}
         {/* <TheHeaderDropdownMssg/> */}
         <TheHeaderDropdown/>

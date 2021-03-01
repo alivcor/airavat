@@ -22,9 +22,15 @@ const _nav =  [
   },
   {
     _tag: 'CSidebarNavItem',
+    name: 'Applications',
+    to: '/applications',
+    icon: 'cib-apache-spark',
+  },
+  {
+    _tag: 'CSidebarNavItem',
     name: 'Jobs',
     to: '/jobs',
-    icon: 'cib-apache-spark',
+    icon: 'cil-cog',
   },
   {
     _tag: 'CSidebarNavItem',

@@ -43,6 +43,7 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
     var queryMap = scala.collection.mutable.Map[Long, Seq[Int]] ()
     var queryInfo = scala.collection.mutable.Map[Long, QueryMetricTuple]()
     var disposableJobsQueue = scala.collection.mutable.Queue[Int]()
+    var startTimestamp = 0L
     val gson = new GsonBuilder()
         .registerTypeHierarchyAdapter(classOf[Seq[Any]], new ListSerializer)
         .registerTypeHierarchyAdapter(classOf[Map[Any, Any]], new MapSerializer)
@@ -127,11 +128,12 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
         logger.info(s"Tracking Application - " + applicationStart.appId)
         appId = applicationStart.appId.getOrElse("Unknown")
         SparkSession.builder().getOrCreate().sessionState.listenerManager.register(new AiravatQueryListener(conf))
+        startTimestamp = System.currentTimeMillis / 1000
         try{
             val addAppSeq = DBIO.seq(
                 airavatApplication += (InetAddress.getLocalHost.getHostName,
                     InetAddress.getLocalHost.getHostAddress,
-                    appId, System.currentTimeMillis / 1000, 0L)
+                    appId, startTimestamp, 0L)
             )
             val logAppF = db.run(addAppSeq)
 
@@ -142,6 +144,27 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
             }
 
             Await.result(logAppF, 120 seconds)
+
+        } catch {
+            case e: Exception => { logger.warn(s"Failed to log app to sink: " + e.getMessage)}
+        }
+
+    }
+
+
+    override def onApplicationEnd(applicationEnd: SparkListenerApplicationEnd): Unit = {
+        try{
+
+            val q = for { c <- airavatApplication if c.appId === appId && c.startTimestamp === startTimestamp && c.hostname === InetAddress.getLocalHost.getHostName  } yield c.endTimestamp
+            val updateAction = q.update(System.currentTimeMillis / 1000)
+            val updateAppF = db.run(updateAction)
+
+            updateAppF onComplete {
+                case Success(v) => logger.info("Logged app " + appId + " to the sink")
+                case Failure(t) => logger.warn("An error occurred while logging jobMetrics to sink: " + t.getMessage)
+            }
+
+            Await.result(updateAppF, 120 seconds)
 
         } catch {
             case e: Exception => { logger.warn(s"Failed to log jobMetrics to sink: " + e.getMessage)}

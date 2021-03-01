@@ -6,15 +6,15 @@ import {
   TheHeader
 } from './index'
 
-const TheLayout = (props) => {
-
+const TheLayout = ({ setAppState }) => {
+  console.log(setAppState);
   return (
     <div className="c-app c-default-layout">
-      <TheSidebar/>
+      <TheSidebar setAppState={setAppState}/>
       <div className="c-wrapper">
-        <TheHeader/>
+        <TheHeader setAppState={setAppState}/>
         <div className="c-body">
-          <TheContent  {...props} />
+          <TheContent setAppState={setAppState}/>
         </div>
         <TheFooter/>
       </div>

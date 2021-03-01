@@ -3,9 +3,11 @@ from typing import Optional
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from model.Applications import Applications
+from model.Jobs import Jobs
 from controllers.session import AiravatSession
 import logging
 import logging.config
+
 
 app = FastAPI()
 
@@ -16,6 +18,7 @@ app.add_middleware(
 
 session = AiravatSession()
 apps = Applications(session)
+jobs = Jobs(session)
 logging.basicConfig(level=logging.DEBUG, format='%(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -27,4 +30,8 @@ def read_root():
 @app.get("/apps")
 def getApplications():
     return apps.fetchAll()
+
+@app.get("/jobs")
+def getJobs():
+    return jobs.fetchAll()
 

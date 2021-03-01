@@ -25,12 +25,12 @@ const WidgetsBrand = lazy(() => import('../widgets/WidgetsBrand.js'))
 
 
 
-const Dashboard = (props) => {
+const Dashboard = ({setAppState}) => {
   
 
   return (
     <>
-      <WidgetsDropdown  {...props}/>
+      <WidgetsDropdown setAppState={setAppState}/>
       <CCard>
         <CCardBody>
           <CRow>

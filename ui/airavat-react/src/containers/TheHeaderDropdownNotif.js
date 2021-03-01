@@ -9,7 +9,7 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 
-const TheHeaderDropdownNotif = () => {
+const TheHeaderDropdownNotif = ({setAppState}) => {
   const itemsCount = 1
   return (
     <CDropdown
@@ -42,7 +42,7 @@ const TheHeaderDropdownNotif = () => {
             <small><b>Applications</b></small>
           </div>
           <CProgress size="xs" color="info" value={25} />
-          <small className="text-muted">4 Spark Applications.</small>
+          <small className="text-muted">{setAppState.length} Spark Applications.</small>
         </CDropdownItem>
         <CDropdownItem className="d-block">
           <div className="text-uppercase mb-1">

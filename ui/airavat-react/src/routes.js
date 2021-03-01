@@ -40,6 +40,7 @@ const User = React.lazy(() => import('./views/users/User'));
 const Jobs = React.lazy(() => import('./views/Jobs'));
 const Queries = React.lazy(() => import('./views/Queries'));
 const Limits = React.lazy(() => import('./views/Limits'));
+const Applications = React.lazy(() => import('./views/Applications'));
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
@@ -84,7 +85,8 @@ const routes = [
   { path: '/users/:id', exact: true, name: 'User Details', component: User },
   { path: '/jobs', name: 'Jobs', component: Jobs },
   { path: '/queries', name: 'Queries', component: Queries },
-  { path: '/limits', name: 'Limits', component: Limits }
+  { path: '/limits', name: 'Limits', component: Limits },
+  { path: '/applications', name: 'Applications', component: Applications }
 ];
 
 export default routes;
