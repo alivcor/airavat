@@ -90,7 +90,7 @@ const fields = [
   },
   { 
     key: 'queryStats', 
-    label: 'Spark Plan',
+    label: 'Stats',
     _style: { width: '5%'} ,
     sorter: true,
     filter: false
@@ -101,14 +101,14 @@ const fields = [
     _style: { width: '5%'} ,
     sorter: true,
     filter: false
-  },
-  { 
-    key: 'metrics', 
-    label: 'Metrics',
-    _style: { width: '5%'} ,
-    sorter: true,
-    filter: false
-  },
+  }
+  // { 
+  //   key: 'metrics', 
+  //   label: 'Metrics',
+  //   _style: { width: '5%'} ,
+  //   sorter: true,
+  //   filter: false
+  // },
   // { 
   //   key: 'serializedPlan', 
   //   label: 'Plan Visual',
@@ -127,19 +127,26 @@ class Queries extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      modal: false,
+      planModal: false,
+      metricModal: false,
       execId: '',
       execPlan: '',
+      execMetrics: '',
     };
 
-    this.toggle = this.toggle.bind(this);
+    this.togglePlan = this.togglePlan.bind(this);
+    this.toggleMetrics = this.toggleMetrics.bind(this);
   }
 
-  toggle() {
+  togglePlan() {
     this.setState({
-      modal: !this.state.modal,
+      planModal: !this.state.planModal,
     });
-
+  }
+  toggleMetrics() {
+    this.setState({
+      metricModal: !this.state.metricModal,
+    });
   }
 
   state = {
@@ -185,7 +192,7 @@ class Queries extends Component {
         <CCardBody>
           <CRow>
             <CCol>
-            <CModal show={this.state.modal} onClose={this.toggle} size="lg">
+            <CModal show={this.state.planModal} onClose={this.togglePlan} size="lg">
               <CModalHeader closeButton>Query Plan for Query {this.state.execId}</CModalHeader>
               <CModalBody>
                 <pre>
@@ -194,7 +201,17 @@ class Queries extends Component {
               </CModalBody>
               <CModalFooter>
                 <CButton color="secondary" onClick={() => {navigator.clipboard.writeText(this.state.execPlan)}}><CIcon name={'cilClone'} color="primary"/></CButton>
-                <CButton color="secondary" onClick={this.toggle}>Close</CButton>
+                <CButton color="secondary" onClick={this.togglePlan}>Close</CButton>
+              </CModalFooter>
+            </CModal>
+            <CModal show={this.state.metricModal} onClose={this.toggleMetrics} size="lg">
+              <CModalHeader closeButton>Query Metrics for Query {this.state.execId}</CModalHeader>
+              <CModalBody>
+              <pre>{this.state.execMetrics}</pre>
+              </CModalBody>
+              <CModalFooter>
+                <CButton color="secondary" onClick={() => {navigator.clipboard.writeText(this.state.execMetrics)}}><CIcon name={'cilClone'} color="primary"/></CButton>
+                <CButton color="secondary" onClick={this.toggleMetrics}>Close</CButton>
               </CModalFooter>
             </CModal>
           <CDataTable
@@ -264,17 +281,25 @@ class Queries extends Component {
                           },
                         'queryStats':
                             (item, index)=>{
-                              console.log(item.queryStats)
+                              // console.log(item.queryStats)
                               return (
                                 <td>
                                   <CBadge color="primary" onClick={() => {
                                     this.setState({
-                                      modal: !this.state.modal,
+                                      planModal: !this.state.planModal,
                                       execId: item.executionId,
                                       execPlan: item.queryStats
                                     })
-                                    this.toggle()
+                                    this.togglePlan()
                                     }} className="mr-1" color="info"  href="#">View Plan</CBadge>
+                                    <CBadge color="success" onClick={() => {
+                                    this.setState({
+                                      metricModal: !this.state.metricModal,
+                                      execId: item.executionId,
+                                      execMetrics: JSON.stringify(JSON.parse(item.metrics), undefined, 2)
+                                    })
+                                    this.toggleMetrics()
+                                    }} className="mr-1" color="info"  href="#">View Metrics</CBadge>
                                 </td>
                             )
                           },
@@ -286,14 +311,14 @@ class Queries extends Component {
                                 </td>
                             )
                           },
-                          'metrics':
-                              (item, index)=>{
-                                return (
-                                  <td>
-                                  <pre>{JSON.stringify(JSON.parse(item.metrics), undefined, 2)}</pre>
-                                  </td>
-                              )
-                            },
+                          // 'metrics':
+                          //     (item, index)=>{
+                          //       return (
+                          //         <td>
+                          //         <pre>{JSON.stringify(JSON.parse(item.metrics), undefined, 2)}</pre>
+                          //         </td>
+                          //     )
+                          //   },
                           // 'serializedPlan':
                           //     (item, index)=>{
                           //       return (
