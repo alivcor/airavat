@@ -109,13 +109,13 @@ const fields = [
     sorter: true,
     filter: false
   },
-  { 
-    key: 'serializedPlan', 
-    label: 'Plan Visual',
-    _style: { width: '5%'} ,
-    sorter: false,
-    filter: false
-  }
+  // { 
+  //   key: 'serializedPlan', 
+  //   label: 'Plan Visual',
+  //   _style: { width: '5%'} ,
+  //   sorter: false,
+  //   filter: false
+  // }
 ]
 
 
@@ -290,18 +290,18 @@ class Queries extends Component {
                               (item, index)=>{
                                 return (
                                   <td>
-                                    {item.metrics}
+                                  <pre>{JSON.stringify(JSON.parse(item.metrics), undefined, 2)}</pre>
                                   </td>
                               )
                             },
-                          'serializedPlan':
-                              (item, index)=>{
-                                return (
-                                  <td>
-                                    {item.serializedPlan}
-                                  </td>
-                              )
-                            }
+                          // 'serializedPlan':
+                          //     (item, index)=>{
+                          //       return (
+                          //          <td>
+                          //          <pre>{JSON.stringify(JSON.parse(item.serializedPlan), undefined, 2)}</pre>
+                          //          </td>
+                          //     )
+                            // }
                     }}
                   />
                   </CCol>
