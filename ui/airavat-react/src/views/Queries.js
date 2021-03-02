@@ -18,6 +18,7 @@ import {
 } from '@coreui/react'
 import { rgbToHex } from '@coreui/utils'
 import { DocsLink } from 'src/reusable'
+import CIcon from '@coreui/icons-react'
 
 
 // def hostname = column[String]("hostname")
@@ -184,12 +185,15 @@ class Queries extends Component {
         <CCardBody>
           <CRow>
             <CCol>
-            <CModal show={this.state.modal} onClose={this.toggle}>
+            <CModal show={this.state.modal} onClose={this.toggle} size="lg">
               <CModalHeader closeButton>Query Plan for Query {this.state.execId}</CModalHeader>
               <CModalBody>
+                <pre>
               {this.state.execPlan}
+              </pre>
               </CModalBody>
               <CModalFooter>
+                <CButton color="secondary" onClick={() => {navigator.clipboard.writeText(this.state.execPlan)}}><CIcon name={'cilClone'} color="primary"/></CButton>
                 <CButton color="secondary" onClick={this.toggle}>Close</CButton>
               </CModalFooter>
             </CModal>
@@ -260,16 +264,17 @@ class Queries extends Component {
                           },
                         'queryStats':
                             (item, index)=>{
+                              console.log(item.queryStats)
                               return (
                                 <td>
-                                  <CButton onClick={() => {
+                                  <CBadge color="primary" onClick={() => {
                                     this.setState({
                                       modal: !this.state.modal,
                                       execId: item.executionId,
                                       execPlan: item.queryStats
                                     })
                                     this.toggle()
-                                    }} className="mr-1" >View Plan</CButton>
+                                    }} className="mr-1" color="info"  href="#">View Plan</CBadge>
                                 </td>
                             )
                           },
@@ -277,7 +282,7 @@ class Queries extends Component {
                             (item, index)=>{
                               return (
                                 <td>
-                                  {item.duration}
+                                  {item.duration} ms
                                 </td>
                             )
                           },
