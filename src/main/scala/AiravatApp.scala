@@ -132,8 +132,8 @@ object AiravatApp extends App {
 //    val bollywoodShows = spark.sql("SELECT country, count(*) FROM netflix WHERE type = 'Movie' GROUP BY country")
 //    bollywoodShows.show()
 
-    val joinQueryDF = spark.sql("SELECT m1.title AS Movie1, m2.title AS Movie2 FROM netflix m1, netflix m2 WHERE m1.release_year = m2.release_year AND m1.type = 'Movie' and m2.type = 'Movie' ORDER BY m1.country")
-    joinQueryDF.show()
+    val joinQueryDF = spark.sql("EXPLAIN EXTENDED SELECT m1.title AS Movie1, m2.title AS Movie2 FROM netflix m1, netflix m2 WHERE m1.release_year = m2.release_year AND m1.type = 'Movie' and m2.type = 'Movie' ORDER BY m1.country")
+    joinQueryDF.show(truncate = false)
 //    bollywoodShows.
 
     System.in.read()

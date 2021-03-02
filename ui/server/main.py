@@ -2,6 +2,8 @@ from typing import Optional
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from controllers.spark_handler import SparkController
 from model.Applications import Applications
 from model.Jobs import Jobs
 from model.Queries import Queries
@@ -19,6 +21,7 @@ app.add_middleware(
 )
 
 session = AiravatSession()
+sparkController = SparkController(session)
 apps = Applications(session)
 jobs = Jobs(session)
 queries = Queries(session)
@@ -46,4 +49,8 @@ def getQueries():
 @app.get("/executions")
 def getExecutions():
     return executions.fetchAll()
+
+@app.get("/cost")
+def getCost(sql):
+    return sparkController.getCost(sql)
 

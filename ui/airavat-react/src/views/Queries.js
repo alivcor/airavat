@@ -166,7 +166,7 @@ class Queries extends Component {
 
   //{details.includes(index) ? 'Hide' : 'Show'}
   timeConverter(UNIX_timestamp){
-    var a = new Date(UNIX_timestamp);
+    var a = new Date(UNIX_timestamp*1000);
     var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     var year = a.getFullYear();
     var month = months[a.getMonth()];
@@ -186,7 +186,7 @@ class Queries extends Component {
       <>
       <CCard>
         <CCardHeader>
-          Executions
+          Queries
           <DocsLink href="https://alivcor.github.io/airavat/"/>
         </CCardHeader>
         <CCardBody>
@@ -299,7 +299,7 @@ class Queries extends Component {
                                       execMetrics: JSON.stringify(JSON.parse(item.metrics), undefined, 2)
                                     })
                                     this.toggleMetrics()
-                                    }} className="mr-1" color="info"  href="#">View Metrics</CBadge>
+                                    }} className="mr-1" color="success"  href="#">View Metrics</CBadge>
                                 </td>
                             )
                           },
