@@ -71,7 +71,7 @@ const WidgetsDropdown = ({setAppState}) => {
       <CCol sm="6" lg="3">
         <CWidgetDropdown
           color="gradient-danger"
-          header="2"
+          header={setAppState.queries.length}
           text="Failed Jobs"
           footerSlot={
             <ChartLineSimple
@@ -92,11 +92,11 @@ const WidgetsDropdown = ({setAppState}) => {
 
 
       
-
+ 
       <CCol sm="6" lg="3">
         <CWidgetDropdown
           color="gradient-success"
-          header={setAppState.executions.length}
+          header={setAppState.queries.length}
           text="Completed Queries"
           footerSlot={
             <ChartBarSimple

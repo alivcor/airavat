@@ -133,7 +133,7 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
             val addAppSeq = DBIO.seq(
                 airavatApplication += (InetAddress.getLocalHost.getHostName,
                     InetAddress.getLocalHost.getHostAddress,
-                    appId, startTimestamp, 0L)
+                    appId, startTimestamp, 0L, SparkSession.builder().getOrCreate().sparkContext.master, conf.get("spark.driver.memory", "1"), conf.get("spark.driver.cores", "2"), conf.get("spark.executor.memory", "1"), conf.get("spark.executor.cores", "2"), conf.get("spark.executor.instances", "1"))
             )
             val logAppF = db.run(addAppSeq)
 

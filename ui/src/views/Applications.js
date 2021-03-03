@@ -1,5 +1,4 @@
 import React, { Component, useEffect, useState, createRef } from 'react'
-
 import classNames from 'classnames'
 import {
   CRow,
@@ -10,10 +9,16 @@ import {
   CCardBody,
   CBadge,
   CButton,
-  CCollapse
+  CCollapse,
+  CModal,
+  CModalBody,
+  CModalHeader,
+  CModalFooter,
+  CModalTitle
 } from '@coreui/react'
 import { rgbToHex } from '@coreui/utils'
 import { DocsLink } from 'src/reusable'
+import CIcon from '@coreui/icons-react'
 
 
 
@@ -59,7 +64,8 @@ const fields = [
     _style: { width: '5%'} ,
     sorter: false,
     filter: false
-  }
+  },
+  'config'
 ]
 
 
@@ -68,10 +74,24 @@ class Applications extends Component {
 
   // ["Abhinandans-MacBook-Pro.local", "127.0.0.1", "local-1614559631695", 1614559637, 0]
 
-  
+  constructor(props) {
+    super(props);
+    this.state = {
+      appModal: false,
+      appId: '',
+      appModalText: '',
+    };
+    this.toggleAppModal = this.toggleAppModal.bind(this);
+  }
 
   state = {
     apps: []
+  }
+
+  toggleAppModal() {
+    this.setState({
+      appModal: !this.state.appModal,
+    });
   }
 
   componentDidMount() {
@@ -111,6 +131,19 @@ class Applications extends Component {
         <CCardBody>
           <CRow>
             <CCol>
+
+            <CModal show={this.state.appModal} onClose={this.toggleAppModal} size="lg">
+              <CModalHeader closeButton>Configuration for App {this.state.appId}</CModalHeader>
+              <CModalBody>
+                <pre>
+              {this.state.appModalText}
+              </pre>
+              </CModalBody>
+              <CModalFooter>
+                <CButton color="secondary" onClick={this.toggleAppModal}>Close</CButton>
+              </CModalFooter>
+            </CModal>
+
           <CDataTable
                     items={this.state.apps}
                     fields={fields}
@@ -167,6 +200,28 @@ class Applications extends Component {
                                   <CBadge color={item.endTimestamp == 0? 'primary' : 'success'}>
                                     {item.endTimestamp == 0? 'Active' : 'Finished'}
                                   </CBadge>
+                                </td>
+                            )
+                          },
+                        'config':
+                            (item, index)=>{
+                              return (
+                                <td>
+                                  {/* {item.sparkMaster}
+                                  {item.driverMemory}
+                                  {item.driverCores}
+                                  {item.executorMemory}
+                                  {item.executorCores}
+                                  {item.numExecutors} */}
+                                  
+                                  <CBadge color="primary" onClick={() => {
+                                    this.setState({
+                                      appModal: !this.state.appModal,
+                                      appId: item.appId,
+                                      appModalText: `Spark Master : ${item.sparkMaster} \nDriver Memory : ${item.driverMemory}G \nDriver Cores : ${item.driverCores} \nExecutor Memory : ${item.executorMemory}G \nExecutor Cores : ${item.executorCores} \nExecutor Instances : ${item.numExecutors}`
+                                    })
+                                    this.toggleAppModal()
+                                    }} className="mr-1" color="info"  href="#">View Config</CBadge>
                                 </td>
                             )
                           }

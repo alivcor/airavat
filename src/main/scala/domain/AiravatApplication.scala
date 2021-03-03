@@ -14,14 +14,20 @@ package com.iresium.airavat
 
 import slick.jdbc.PostgresProfile.api._
 
-class AiravatApplication(tag: Tag) extends Table[(String, String, String, Long, Long)](tag, "AIRAVAT_APPLICATIONS") {
+class AiravatApplication(tag: Tag) extends Table[(String, String, String, Long, Long, String, String, String, String, String, String)](tag, "AIRAVAT_APPLICATIONS") {
     def hostname = column[String]("hostname")
     def ipAddress = column[String]("ipAddress")
     def appId = column[String]("appId")
     def startTimestamp = column[Long]("startTimestamp")
     def endTimestamp = column[Long]("endTimestamp")
+    def sparkMaster = column[String]("sparkMaster")
+    def driverMemory = column[String]("driverMemory")
+    def driverCores = column[String]("driverCores")
+    def executorMemory = column[String]("executorMemory")
+    def executorCores = column[String]("executorCores")
+    def numExecutors = column[String]("numExecutors")
     // Every table needs a * projection with the same type as the table's type parameter
-    def * = (hostname, ipAddress, appId, startTimestamp, endTimestamp)
+    def * = (hostname, ipAddress, appId, startTimestamp, endTimestamp, sparkMaster, driverMemory, driverCores, executorMemory, executorCores, numExecutors)
 }
 
 
