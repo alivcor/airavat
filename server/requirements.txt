@@ -1,0 +1,4 @@
+uvicorn
+fastapi
+pyspark==2.4.7
+sqlalchemy

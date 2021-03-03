@@ -1,0 +1,49 @@
+"== Parsed Logical Plan ==
+'Sort ['m1.country ASC NULLS FIRST], true
++- 'Project ['m1.title AS Movie1#83, 'm2.title AS Movie2#84]
+   +- 'Filter ((('m1.release_year = 'm2.release_year) && ('m1.type = Movie)) && ('m2.type = Movie))
+      +- 'Join Inner
+         :- 'SubqueryAlias `m1`
+         :  +- 'UnresolvedRelation `netflix`
+         +- 'SubqueryAlias `m2`
+            +- 'UnresolvedRelation `netflix`
+
+== Analyzed Logical Plan ==
+Movie1: string, Movie2: string
+Project [Movie1#83, Movie2#84]
++- Sort [country#15 ASC NULLS FIRST], true
+   +- Project [title#12 AS Movie1#83, title#89 AS Movie2#84, country#15]
+      +- Filter (((release_year#17 = release_year#94) && (type#11 = Movie)) && (type#88 = Movie))
+         +- Join Inner
+            :- SubqueryAlias `m1`
+            :  +- SubqueryAlias `netflix`
+            :     +- Relation[show_id#10,type#11,title#12,director#13,cast#14,country#15,date_added#16,release_year#17,rating#18,duration#19,listed_in#20,description#21] csv
+            +- SubqueryAlias `m2`
+               +- SubqueryAlias `netflix`
+                  +- Relation[show_id#87,type#88,title#89,director#90,cast#91,country#92,date_added#93,release_year#94,rating#95,duration#96,listed_in#97,description#98] csv
+
+== Optimized Logical Plan ==
+Project [Movie1#83, Movie2#84]
++- Sort [country#15 ASC NULLS FIRST], true
+   +- Project [title#12 AS Movie1#83, title#89 AS Movie2#84, country#15]
+      +- Join Inner, (release_year#17 = release_year#94)
+         :- Project [title#12, country#15, release_year#17]
+         :  +- Filter ((isnotnull(type#11) && (type#11 = Movie)) && isnotnull(release_year#17))
+         :     +- Relation[show_id#10,type#11,title#12,director#13,cast#14,country#15,date_added#16,release_year#17,rating#18,duration#19,listed_in#20,description#21] csv
+         +- Project [title#89, release_year#94]
+            +- Filter ((isnotnull(type#88) && (type#88 = Movie)) && isnotnull(release_year#94))
+               +- Relation[show_id#87,type#88,title#89,director#90,cast#91,country#92,date_added#93,release_year#94,rating#95,duration#96,listed_in#97,description#98] csv
+
+== Physical Plan ==
+*(3) Project [Movie1#83, Movie2#84]
++- *(3) Sort [country#15 ASC NULLS FIRST], true, 0
+   +- Exchange rangepartitioning(country#15 ASC NULLS FIRST, 200)
+      +- *(2) Project [title#12 AS Movie1#83, title#89 AS Movie2#84, country#15]
+         +- *(2) BroadcastHashJoin [release_year#17], [release_year#94], Inner, BuildRight
+            :- *(2) Project [title#12, country#15, release_year#17]
+            :  +- *(2) Filter ((isnotnull(type#11) && (type#11 = Movie)) && isnotnull(release_year#17))
+            :     +- *(2) FileScan csv [type#11,title#12,country#15,release_year#17] Batched: false, Format: CSV, Location: InMemoryFileIndex[file:/Users/abhinandandubey/Desktop/airavat/data/netflix_titles.csv], PartitionFilters: [], PushedFilters: [IsNotNull(type), EqualTo(type,Movie), IsNotNull(release_year)], ReadSchema: struct<type:string,title:string,country:string,release_year:string>
+            +- BroadcastExchange HashedRelationBroadcastMode(List(input[1, string, true]))
+               +- *(1) Project [title#89, release_year#94]
+                  +- *(1) Filter ((isnotnull(type#88) && (type#88 = Movie)) && isnotnull(release_year#94))
+                     +- *(1) FileScan csv [type#88,title#89,release_year#94] Batched: false, Format: CSV, Location: InMemoryFileIndex[file:/Users/abhinandandubey/Desktop/airavat/data/netflix_titles.csv], PartitionFilters: [], PushedFilters: [IsNotNull(type), EqualTo(type,Movie), IsNotNull(release_year)], ReadSchema: struct<type:string,title:string,release_year:string>"
