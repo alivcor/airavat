@@ -1,3 +1,3 @@
 # Airavat
 
-![AiravatUI](ui/airavat-react/public/ui.png)
+![AiravatUI](ui/public/ui.png)
