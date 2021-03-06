@@ -206,14 +206,7 @@ class Applications extends Component {
                         'config':
                             (item, index)=>{
                               return (
-                                <td>
-                                  {/* {item.sparkMaster}
-                                  {item.driverMemory}
-                                  {item.driverCores}
-                                  {item.executorMemory}
-                                  {item.executorCores}
-                                  {item.numExecutors} */}
-                                  
+                                <td>                                  
                                   <CBadge color="primary" onClick={() => {
                                     this.setState({
                                       appModal: !this.state.appModal,

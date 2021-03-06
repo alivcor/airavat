@@ -5,6 +5,7 @@
 
 # scala 3
 .tasty
+*.ipynb*
 
 # vs code
 .vscode

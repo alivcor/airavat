@@ -1,3 +1,4 @@
+organization := "com.iresium"
 name := "airavat"
 
 version := "0.1"

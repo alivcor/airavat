@@ -28,8 +28,6 @@ object Sickle {
                     case _: BroadcastHashJoinExec => new BroadcastHashJoinExecNode(treeNode.asInstanceOf[BroadcastHashJoinExec])
                     case _: ShuffledHashJoinExec => new ShuffledHashJoinExecNode(treeNode.asInstanceOf[ShuffledHashJoinExec])
                     case _: SortMergeJoinExec => new SortMergeJoinExecNode(treeNode.asInstanceOf[SortMergeJoinExec])
-                    case _: RDDScanExec => new RDDScanExecNode(treeNode.asInstanceOf[RDDScanExec])
-                    case _: DataSourceScanExec => new DataSourceScanExecNode(treeNode.asInstanceOf[DataSourceScanExec])
                     case _: InMemoryTableScanExec => new InMemoryTableScanExecNode(treeNode.asInstanceOf[InMemoryTableScanExec])
                     case _: ShuffleExchangeExec => new ShuffleExchangeExecNode(treeNode.asInstanceOf[ShuffleExchangeExec])
                     case _: ProjectExec => new ProjectExecNode(treeNode.asInstanceOf[ProjectExec])
@@ -41,6 +39,7 @@ object Sickle {
                     case _: RowDataSourceScanExec => new RowDataSourceScanExecNode(treeNode.asInstanceOf[RowDataSourceScanExec])
                     case _: DataSourceScanExec => new DataSourceScanExecNode(treeNode.asInstanceOf[DataSourceScanExec])
                     case _: BroadcastNestedLoopJoinExec => new BroadcastNestedLoopJoinExecNode(treeNode.asInstanceOf[BroadcastNestedLoopJoinExec])
+                    case _: RDDScanExec => new RDDScanExecNode(treeNode.asInstanceOf[RDDScanExec])
                     case _ => new UnknownNode(treeNode)
                 }
             if(!treeNode.children.isEmpty){
