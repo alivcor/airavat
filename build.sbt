@@ -3,6 +3,7 @@ name := "airavat"
 
 version := "0.1"
 
+
 scalaVersion := "2.11.5"
 val sparkVersion = "2.4.7"
 

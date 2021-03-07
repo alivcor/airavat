@@ -9,7 +9,9 @@
 
 # vs code
 .vscode
-
+metastore_db/
+lib_managed/
+spark-warehouse/
 # sbt
 # (may want to keep parts of 'project')
 bin/

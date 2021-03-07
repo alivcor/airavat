@@ -288,7 +288,13 @@ class Queries extends Component {
                                     this.setState({
                                       planModal: !this.state.planModal,
                                       execId: item.executionId,
-                                      execPlan: item.queryStats
+                                      // execPlan: item.queryStats
+                                      execPlan: "logicalPlan : \n" + item.logicalPlan + "\n\n executedPlan : \n" + item.executedPlan + "\n\n queryStats : \n" + item.queryStats
+                            //           sparkPlan: String,
+                            // logicalPlan: String = "",
+                            // optimizedPlan: String =  "",
+                            // executedPlan: String = "",
+                            // queryStats: String = "",
                                     })
                                     this.togglePlan()
                                     }} className="mr-1" color="info"  href="#">View Plan</CBadge>
