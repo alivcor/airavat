@@ -12,6 +12,7 @@
 metastore_db/
 lib_managed/
 spark-warehouse/
+data/
 # sbt
 # (may want to keep parts of 'project')
 bin/
