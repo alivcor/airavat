@@ -27,91 +27,100 @@ Airavat is a metric interceptor for Spark Applications. It also features an inte
 ### Prerequisites
 
  - Spark 2.3.0 + 
+ - Scala / sbt to compile and build the jar
+ - ReactJS, Node/NPM and dependencies for the frontend/UI
+ - FastAPI, SQLAlchemy for the server.
 
 ### Installation
 
-#### 1. Build The Jar
+#### 1. Clone the project
 
 ```bash
-      sbt clean package
+      git clone https://github.com/alivcor/airavat.git
 ```
 
-#### 2. Add The Jar to your Spark Application
-
-Linux
+#### 2. Build the jar
 
 ```bash
-      --conf "spark.driver.extraClassPath=/path/to/smork-0.0.1.jar"
+      sbt clean package publishLocal
 ```
 
-#### 3. Use it normally as you would use any Estimator in Spark. 
+#### 3. Test Run
 
-##### - Import 
+```bash
+      sbt run
+```
+
+#### 4. Add The Jar to your Spark Application
+
+Linux/MacOS
+
+```bash
+    --conf "spark.extraListeners=com.iresium.airavat.AiravatJobListener"
+    --conf "spark.airavat.collectJobMetrics=true"
+    --conf "spark.airavat.collectQueryMetrics=true"
+    --conf "spark.airavat.collectQueryPlan=true"
+    --conf "spark.airavat.collectJobMetrics=true"
+    --jars /path/to/airavat-0.1.jar
+```
+
+Scala Application
+
 ```scala
-      import com.iresium.ml.SMOTE
+val spark = SparkSession
+        .builder()
+        .master("local")
+        .appName("My Spark Application")
+        .config("spark.extraListeners", "com.iresium.airavat.AiravatJobListener")
+        .config("spark.airavat.collectJobMetrics", "true")
+        .config("spark.airavat.collectQueryMetrics", "true")
+        .config("spark.airavat.collectQueryPlan", "true")
+        .getOrCreate()
 ```
 
-##### - Initialize & Fit
-```scala
-    val smote = new SMOTE()
-    smote.setfeatureCol("myFeatures").setlabelCol("myLabel").setbucketLength(100)
 
-    val smoteModel = smote.fit(df)
+### Setting up Backend Server
 
+
+#### 1. Install Dependencies
+
+```bash
+      cd server
+      pip install -r requirements.txt
 ```
 
-##### - Transform
-```scala
-    val newDF = smoteModel.transform(df)
+#### 2. Start the server
+
+```bash
+      uvicorn main:app
 ```
 
-You can also see and run an example in `src/main/scala/SMORKApp.scala`
+You can also run it with nohup as a daemon process `nohup main:app >> airavat_server.log &`
 
-### Coming Soon
-
-
-- [ ] PySMORK - Python Wrapper for SMORK - allows you to use SMOTE in PySpark
-- [ ] Support for categorical attributes
-
-<!-- #### Python Package Index
-
-SMORK is now available at https://pypi.python.org/pypi/smork/0.1
+### Setting up the Frontend Server
 
 
+#### 1. Install Dependencies
 
-```
-1. Download the tar/zip from https://pypi.python.org/pypi/smork/0.1
-2. Move the package to your desired location / python version, and unzip the archive.
-Optionally, if you have a linux-based machine (Ubuntu/OSX):
-      tar xvzf smork-0.x.tar.gz -C /path/to/desireddirectory
-3. Migrate to the smork folder, and run
-      python setup.py install
-``` -->
-
-<!-- #### Using pip
-
-```
-pip install smork
+```bash
+      cd ui
+      npm install
 ```
 
-To upgrade,
+#### 2. Start the server
+
+```bash
+      npm start
+```
+
+### Building Airavat for Spark 3.0+
 
 ```
-pip install --upgrade smork
-``` -->
+1. Change the `sparkVersion` to desired spark version
+2. Build the sbt package again.
+3. Make sure to update the jars.
+```
 
-<!-- 
-## Using SMORK
-
- -->
-
-
-<!-- ## See the magic unleash
-
-<p align="center">
-<img src="megaclite_demo.png" />
-</p>
- -->
 
 ## Contributing
 
@@ -126,6 +135,6 @@ Looking for contributors ! You are welcome to raise issues / send a pull-request
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
-[![forthebadge](http://forthebadge.com/images/badges/makes-people-smile.svg)](https://github.com/alivcor/SMORK/#)
+[![forthebadge](http://forthebadge.com/images/badges/makes-people-smile.svg)](https://github.com/alivcor/airavat/#)
 
 <a href="https://www.buymeacoffee.com/abhinandandubey" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
