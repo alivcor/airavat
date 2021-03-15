@@ -6,7 +6,7 @@
 <img src="https://github.com/alivcor/airavat/raw/master/assets/airavat_logo.png" width="150px"/>
 </p>
 
-Airavat is a metric interceptor and a job manager for Spark Applications. It also features an interactive UI which shows all Spark Applications running, jobs and SQL Queries along with their metrics.
+Airavat is a metric interceptor and a job watchdog for Spark Applications. It also features an interactive UI which shows all Spark Applications running, jobs and SQL Queries along with their metrics.
 
 ![AiravatUI](ui/public/ui.png)
 
