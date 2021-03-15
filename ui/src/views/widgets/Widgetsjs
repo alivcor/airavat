@@ -11,8 +11,8 @@ import {
   CWidgetSimple,
   CProgress,
 } from '@coreui/react'
-import WidgetsBrand from './WidgetsBrand'
-import WidgetsDropdown from './WidgetsDropdown'
+// import WidgetsBrand from './WidgetsBrand'
+import DashboardWidgets from './DashboardWidgets'
 
 import ChartLineSimple from '../charts/ChartLineSimple'
 import ChartBarSimple from '../charts/ChartBarSimple'
@@ -22,7 +22,7 @@ import CIcon from '@coreui/icons-react'
 const Widgets = () => {
   return (
     <>
-      <WidgetsDropdown />
+      <DashboardWidgets />
       <CRow>
         <CCol xs="12" sm="6" lg="3">
           <CWidgetProgress color="success" header="89.9%" text="Lorem ipsum..." footer="Lorem ipsum dolor sit amet enim."/>

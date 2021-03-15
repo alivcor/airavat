@@ -18,13 +18,17 @@ const _nav =  [
   },
   {
     _tag: 'CSidebarNavTitle',
-    _children: ['Inspect']
+    _children: ['Monitor']
   },
   {
     _tag: 'CSidebarNavItem',
     name: 'Applications',
     to: '/applications',
     icon: 'cib-apache-spark',
+  },
+  {
+    _tag: 'CSidebarNavTitle',
+    _children: ['Inspect']
   },
   {
     _tag: 'CSidebarNavItem',
@@ -43,23 +47,19 @@ const _nav =  [
     name: 'Queries',
     to: '/queries',
     icon: 'cil-layers',
-  },
-  {
-    _tag: 'CSidebarNavItem',
-    name: 'Limits',
-    to: '/limits',
-    icon: 'cil-warning',
-  },
-  {
-    _tag: 'CSidebarNavTitle',
-    _children: ['Manage']
-  },
-  {
-    _tag: 'CSidebarNavItem',
-    name: 'Users',
-    to: '/users',
-    icon: 'cil-user',
   }
+  // {
+  //   _tag: 'CSidebarNavItem',
+  //   name: 'Limits',
+  //   to: '/limits',
+  //   icon: 'cil-warning',
+  // }
+  // {
+  //   _tag: 'CSidebarNavItem',
+  //   name: 'Users',
+  //   to: '/users',
+  //   icon: 'cil-user',
+  // }
 ]
 
 export default _nav

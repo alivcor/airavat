@@ -27,7 +27,7 @@ const WidgetsDropdown = ({setAppState}) => {
       <CCol sm="6" lg="3">
         <CWidgetDropdown
           color="gradient-primary"
-          header={setAppState.apps.length}
+          header={setAppState.apps.length == 0 ? "0" : setAppState.apps.length}
           text="Active Applications"
           footerSlot={
             <ChartLineSimple
@@ -48,7 +48,7 @@ const WidgetsDropdown = ({setAppState}) => {
       <CCol sm="6" lg="3">
         <CWidgetDropdown
           color="gradient-info"
-          header={setAppState.jobs.length}
+          header={setAppState.jobs.length == 0 ? "0" : setAppState.jobs.length }
           text="Completed Jobs"
           footerSlot={
             <ChartLineSimple
@@ -71,7 +71,7 @@ const WidgetsDropdown = ({setAppState}) => {
       <CCol sm="6" lg="3">
         <CWidgetDropdown
           color="gradient-danger"
-          header={setAppState.queries.length}
+          header={setAppState.killedJobs.length == 0 ? "0": setAppState.killedJobs.length}
           text="Failed Jobs"
           footerSlot={
             <ChartLineSimple
@@ -96,7 +96,7 @@ const WidgetsDropdown = ({setAppState}) => {
       <CCol sm="6" lg="3">
         <CWidgetDropdown
           color="gradient-success"
-          header={setAppState.queries.length}
+          header={setAppState.executions.length == 0 ? "0" : setAppState.executions.length}
           text="Completed Queries"
           footerSlot={
             <ChartBarSimple
@@ -123,9 +123,10 @@ const WidgetsDropdown = ({setAppState}) => {
       <CCol sm="6" lg="12">
         <CWidgetProgress
           color="danger"
-          header="12.9%"
+          header={setAppState.killedJobsFraction.toFixed(2) + '%'}
           text="Jobs Killed"
           footer="Potentially hazardous jobs"
+          value={setAppState.killedJobsFraction.toFixed(2)}
         />
       </CCol>
      

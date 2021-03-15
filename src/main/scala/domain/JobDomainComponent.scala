@@ -14,7 +14,7 @@ package com.iresium.airavat
 
 import slick.jdbc.PostgresProfile.api._
 
-class AiravatJobMetric(tag: Tag) extends Table[(String, String, String, Int, Long, Int, Long, Long, Long, Long, Long, Long, Long, String)](tag, "AIRAVAT_JOB_INFO") {
+class AiravatJobMetric(tag: Tag) extends Table[(String, String, String, Int, Long, Int, Long, Long, Long, Long, Long, Long, Long, String, String)](tag, "AIRAVAT_JOB_INFO") {
     def hostname = column[String]("hostname")
     def ipAddress = column[String]("ipAddress")
     def appId = column[String]("appId")
@@ -28,9 +28,10 @@ class AiravatJobMetric(tag: Tag) extends Table[(String, String, String, Int, Lon
     def totalResultSize = column[Long]("totalResultSize")
     def totalShuffleReadBytes = column[Long]("totalShuffleReadBytes")
     def totalShuffleWriteBytes = column[Long]("totalShuffleWriteBytes")
+    def killedCause = column[String]("killedCause")
     def timestamp = column[String]("timestamp")
     // Every table needs a * projection with the same type as the table's type parameter
-    def * = (hostname, ipAddress, appId, jobId, numStages, numTasks, totalDuration, totalDiskSpill, totalBytesRead, totalBytesWritten, totalResultSize, totalShuffleReadBytes, totalShuffleWriteBytes, timestamp)
+    def * = (hostname, ipAddress, appId, jobId, numStages, numTasks, totalDuration, totalDiskSpill, totalBytesRead, totalBytesWritten, totalResultSize, totalShuffleReadBytes, totalShuffleWriteBytes, killedCause, timestamp)
 }
 
 

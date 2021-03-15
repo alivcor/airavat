@@ -43,6 +43,7 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
     var queryMap = scala.collection.mutable.Map[Long, Seq[Int]] ()
     var queryInfo = scala.collection.mutable.Map[Long, QueryMetricTuple]()
     var disposableJobsQueue = scala.collection.mutable.Queue[Int]()
+    var killedJobsMap = scala.collection.mutable.Map[Int, Tuple2[JobMetricTuple, String]] ()
     var startTimestamp = 0L
     val gson = new GsonBuilder()
         .registerTypeHierarchyAdapter(classOf[Seq[Any]], new ListSerializer)
@@ -115,7 +116,7 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
                     case Failure(t) => logger.warn("An error occurred while logging queryMetrics to sink: " + t.getMessage)
                 }
 
-                Await.result(logQueryMetricsF, 120 seconds)
+                Await.result(logQueryMetricsF, Try(conf.get("spark.airavat.dbTimeoutSeconds").toInt).getOrElse(120) seconds)
 
             } catch {
                 case e: Exception => { logger.warn(s"Failed to log queryMetrics to sink: " + e.getMessage)}
@@ -143,7 +144,7 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
                 case Failure(t) => logger.warn("An error occurred while logging jobMetrics to sink: " + t.getMessage)
             }
 
-            Await.result(logAppF, 120 seconds)
+            Await.result(logAppF, Try(conf.get("spark.airavat.dbTimeoutSeconds").toInt).getOrElse(120) seconds)
 
         } catch {
             case e: Exception => { logger.warn(s"Failed to log app to sink: " + e.getMessage)}
@@ -155,6 +156,8 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
     override def onApplicationEnd(applicationEnd: SparkListenerApplicationEnd): Unit = {
         try{
 
+            flushJobs() // Important, if there are any jobs which were killed and missed persistence
+
             val q = for { c <- airavatApplication if c.appId === appId && c.startTimestamp === startTimestamp && c.hostname === InetAddress.getLocalHost.getHostName  } yield c.endTimestamp
             val updateAction = q.update(System.currentTimeMillis / 1000)
             val updateAppF = db.run(updateAction)
@@ -164,7 +167,7 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
                 case Failure(t) => logger.warn("An error occurred while logging jobMetrics to sink: " + t.getMessage)
             }
 
-            Await.result(updateAppF, 120 seconds)
+            Await.result(updateAppF, Try(conf.get("spark.airavat.dbTimeoutSeconds").toInt).getOrElse(120) seconds)
 
         } catch {
             case e: Exception => { logger.warn(s"Failed to log jobMetrics to sink: " + e.getMessage)}
@@ -186,7 +189,12 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
         var maxJobsRetain = Try(conf.get("spark.airavat.maxJobRetain").toInt).getOrElse(100)
         try {
             while(maxJobsRetain > 0 && disposableJobsQueue.length > 0){
-                evictJob(disposableJobsQueue.dequeue())
+                val evictableJobId = disposableJobsQueue.dequeue()
+                if(jobInfo.contains(evictableJobId) && !jobInfo(evictableJobId).killedCause.equals("")){
+                    // Job isn't yet evictable, the job was cancelled by Airavat and a jobEnd event was never called, so the job just stayed in the queue.
+                    persistJob(jobInfo(evictableJobId)) // check if it needs to be persisted.
+                }
+                evictJob(evictableJobId)
                 maxJobsRetain -= 1
             }
         } catch {
@@ -201,6 +209,33 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
         } catch {
             case e: Exception => { logger.warn(s"Failed to evict query Id " + evictableQuery + " : " + e.getMessage)}
         }
+    }
+
+    private def persistJob(jobMetricTuple: JobMetricTuple): Unit = {
+        if(Try(conf.get("spark.airavat.collectJobMetrics").toBoolean).getOrElse(false)){
+            try{
+                val addJobsSeq = DBIO.seq(
+                    airavatJobMetric += (InetAddress.getLocalHost.getHostName,
+                        InetAddress.getLocalHost.getHostAddress,
+                        appId, jobMetricTuple.jobId, jobMetricTuple.numStages, jobMetricTuple.numTasks, jobMetricTuple.totalDuration, jobMetricTuple.totalDiskSpill, jobMetricTuple.totalBytesRead, jobMetricTuple.totalBytesWritten, jobMetricTuple.totalResultSize, jobMetricTuple.totalShuffleReadBytes, jobMetricTuple.totalShuffleWriteBytes, jobMetricTuple.killedCause, jobMetricTuple.timestamp)
+                )
+                val logJobMetricsF = db.run(addJobsSeq)
+
+
+                logJobMetricsF onComplete {
+                    case Success(v) => logger.info("Logged metrics for " + jobMetricTuple.jobId + " to the sink")
+                    case Failure(t) => logger.warn("An error occurred while logging jobMetrics to sink: " + t.getMessage)
+                }
+
+                Await.result(logJobMetricsF, Try(conf.get("spark.airavat.dbTimeoutSeconds").toInt).getOrElse(120) seconds)
+
+            } catch {
+                case e: Exception => { logger.warn(s"Failed to log jobMetrics to sink: " + e.getMessage)}
+            }
+            //            finally db.close
+
+        }
+
     }
 
     override def onJobStart(jobStart: SparkListenerJobStart) {
@@ -239,6 +274,8 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
                 if(!statusTracker.getJobInfo(jobStart.jobId).isEmpty && (statusTracker.getJobInfo(jobStart.jobId).get.status() == JobExecutionStatus.RUNNING || statusTracker.getJobInfo(jobStart.jobId).get.status() == JobExecutionStatus.UNKNOWN))
                 {
                     SparkSession.builder().getOrCreate().sparkContext.cancelJob(jobStart.jobId)
+                    val killCause = s"Airavat : Killing Job ${jobStart.jobId} because it breached maxJobDuration of ${Try(conf.get("spark.airavat.maxJobDuration").toLong).getOrElse(scala.Long.MaxValue)}"
+                    jobInfo(jobStart.jobId) = JobMetricSerializer.markJobKilled(jobInfo(jobStart.jobId), killCause)
                 }
             }
         }
@@ -246,33 +283,8 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
     }
 
     override def onJobEnd(jobEnd: SparkListenerJobEnd) {
-
         logger.info("JobEnd " + jobEnd.jobId)
-        if(Try(conf.get("spark.airavat.collectJobMetrics").toBoolean).getOrElse(false)){
-            try{
-                val jobDetails = jobInfo(jobEnd.jobId)
-                val addJobsSeq = DBIO.seq(
-                    airavatJobMetric += (InetAddress.getLocalHost.getHostName,
-                        InetAddress.getLocalHost.getHostAddress,
-                        appId, jobDetails.jobId, jobDetails.numStages, jobDetails.numTasks, jobDetails.totalDuration, jobDetails.totalDiskSpill, jobDetails.totalBytesRead, jobDetails.totalBytesWritten, jobDetails.totalResultSize, jobDetails.totalShuffleReadBytes, jobDetails.totalShuffleWriteBytes, jobDetails.timestamp)
-                )
-                val logJobMetricsF = db.run(addJobsSeq)
-
-
-                logJobMetricsF onComplete {
-                    case Success(v) => logger.info("Logged metrics for " + jobDetails.jobId + " to the sink")
-                    case Failure(t) => logger.warn("An error occurred while logging jobMetrics to sink: " + t.getMessage)
-                }
-
-                Await.result(logJobMetricsF, 120 seconds)
-
-            } catch {
-                case e: Exception => { logger.warn(s"Failed to log jobMetrics to sink: " + e.getMessage)}
-            }
-//            finally db.close
-
-        }
-
+        persistJob(jobInfo(jobEnd.jobId))
     }
 
     override def onTaskEnd(taskEnd: SparkListenerTaskEnd) {
@@ -281,7 +293,10 @@ class AiravatJobListener(conf: SparkConf) extends SparkListener {
 
         if(jobMap.contains(taskEnd.stageId) && jobInfo.contains(jobMap(taskEnd.stageId))){
             jobInfo(jobMap(taskEnd.stageId)) = JobMetricSerializer.updateDerivedMetrics(jobInfo(jobMap(taskEnd.stageId)), taskEnd, taskMetricTuple)
-            MetricAnalyzer.analyzeJobMetrics(jobInfo(jobMap(taskEnd.stageId)))
+            val killCause = MetricAnalyzer.analyzeJobMetrics(jobInfo(jobMap(taskEnd.stageId)))
+            if (!killCause.isEmpty()){
+                jobInfo(jobMap(taskEnd.stageId)) = JobMetricSerializer.markJobKilled(jobInfo(jobMap(taskEnd.stageId)), killCause)
+            }
         }
 
     }

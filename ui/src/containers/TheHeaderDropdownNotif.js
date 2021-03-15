@@ -21,15 +21,15 @@ const TheHeaderDropdownNotif = ({setAppState}) => {
         <CBadge shape="pill" color="danger">{itemsCount}</CBadge>
       </CDropdownToggle>
       <CDropdownMenu  placement="bottom-end" className="pt-0">
-        <CDropdownItem
+        {/* <CDropdownItem
           header
           tag="div"
           className="text-center"
           color="light"
         >
           <strong>{itemsCount} alarms</strong>
-        </CDropdownItem>
-        <CDropdownItem><CIcon name="cil-speedometer" className="mr-2 text-warning" /> Server overloaded</CDropdownItem>
+        </CDropdownItem> */}
+        {/* <CDropdownItem><CIcon name="cil-speedometer" className="mr-2 text-warning" /> Server overloaded</CDropdownItem> */}
         <CDropdownItem
           header
           tag="div"
@@ -41,10 +41,10 @@ const TheHeaderDropdownNotif = ({setAppState}) => {
           <div className="text-uppercase mb-1">
             <small><b>Applications</b></small>
           </div>
-          <CProgress size="xs" color="info" value={25} />
-          <small className="text-muted">{setAppState.length} Spark Applications.</small>
+          <CProgress size="xs" color="info" value={setAppState.apps.length} />
+          <small className="text-muted">{setAppState.apps.length == 0 ? "0" : setAppState.apps.length} Spark Applications.</small>
         </CDropdownItem>
-        <CDropdownItem className="d-block">
+        {/* <CDropdownItem className="d-block">
           <div className="text-uppercase mb-1">
             <small><b>Jobs</b></small>
           </div>
@@ -57,7 +57,7 @@ const TheHeaderDropdownNotif = ({setAppState}) => {
           </div>
           <CProgress size="xs" color="danger" value={90} />
           <small className="text-muted">Queries</small>
-        </CDropdownItem>
+        </CDropdownItem> */}
       </CDropdownMenu>
     </CDropdown>
   )

@@ -26,7 +26,8 @@ case class JobMetricTuple(
     totalBytesWritten: Long, // derived metric
     totalResultSize: Long, // derived metric
     totalShuffleReadBytes: Long, // derived metric
-    totalShuffleWriteBytes: Long, // derived metric
+    totalShuffleWriteBytes: Long, // derived metric,
+    killedCause: String, // derived metric,
     timestamp: String = java.time.LocalDateTime.now().toString
 )
 

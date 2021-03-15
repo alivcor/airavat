@@ -289,7 +289,7 @@ class Queries extends Component {
                                       planModal: !this.state.planModal,
                                       execId: item.executionId,
                                       // execPlan: item.queryStats
-                                      execPlan: "logicalPlan : \n" + item.logicalPlan + "\n\n executedPlan : \n" + item.executedPlan + "\n\n queryStats : \n" + item.queryStats
+                                      execPlan: item.queryStats
                             //           sparkPlan: String,
                             // logicalPlan: String = "",
                             // optimizedPlan: String =  "",

@@ -27,18 +27,18 @@ const TheHeaderDropdown = () => {
         
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end">
-        <CDropdownItem
+        {/* <CDropdownItem
           header
           tag="div"
           color="light"
           className="text-center"
         >
           <strong>Settings</strong>
-        </CDropdownItem>
+        </CDropdownItem> */}
         <CDropdownItem>
-          <CIcon name="cil-user" className="mfe-2" />Profile
+          <CIcon name="cil-user" className="mfe-2" />Airavat Admin
         </CDropdownItem>
-        <CDropdownItem>
+        {/* <CDropdownItem>
           <CIcon name="cil-settings" className="mfe-2" />
           Settings
         </CDropdownItem>
@@ -46,7 +46,7 @@ const TheHeaderDropdown = () => {
         <CDropdownItem>
           <CIcon name="cil-lock-locked" className="mfe-2" />
           Log Off
-        </CDropdownItem>
+        </CDropdownItem> */}
       </CDropdownMenu>
     </CDropdown>
   )

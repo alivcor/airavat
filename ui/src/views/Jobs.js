@@ -191,7 +191,8 @@ class Jobs extends Component {
                           (item, index)=>{
                             return (
                               <td>
-                                {item.jobId}
+                                
+                                <a href={"http://" + item.ipAddress + ":4040/jobs/job/?id=" + item.jobId} target="_blank">{item.jobId}</a>
                               </td>
                           )
                         },

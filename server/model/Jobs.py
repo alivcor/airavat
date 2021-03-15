@@ -14,3 +14,9 @@ class Jobs:
         resultSet = self.session.dbEngine.db_session.query(jobs)
         return [r._asdict() for r in resultSet]
         # return resultSet.__dict__
+
+    def fetchKilled(self):
+        jobs = db.select([self.jobs]).where(self.jobs.columns.killedCause != "")
+        resultSet = self.session.dbEngine.db_session.query(jobs)
+        return [r._asdict() for r in resultSet]
+        # return resultSet.__dict__

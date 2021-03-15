@@ -54,3 +54,7 @@ def getExecutions():
 def getCost(sql):
     return sparkController.getCost(sql)
 
+@app.get("/killed")
+def getCost(sql):
+    return jobs.fetchKilled()
+

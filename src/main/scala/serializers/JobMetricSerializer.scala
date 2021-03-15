@@ -46,7 +46,7 @@ object JobMetricSerializer {
             jobStart.stageInfos.size,
             stageInfoTuple.toSeq,
             rddInfoTuple.toSeq, 0, 0, 0, 0, 0, 0, 0,
-            stageInfoTuple.toSeq.map(_.numTasks).sum
+            stageInfoTuple.toSeq.map(_.numTasks).sum, ""
         )
 
 
@@ -71,6 +71,11 @@ object JobMetricSerializer {
 
         )
 
+    }
+
+
+    def markJobKilled(jobMetricTuple: JobMetricTuple, killedCause: String): JobMetricTuple = {
+        jobMetricTuple.copy(killedCause = killedCause)
     }
 
 

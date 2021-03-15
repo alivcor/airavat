@@ -83,6 +83,13 @@ class App extends Component {
     window.sessionStorage.setItem("completedExecutionCountHistory", JSON.stringify(completedExecutionCountHistory))
     return completedExecutionCountHistory;
   }
+
+  getJobsKilled(jobs){
+    var killedJobs = jobs.filter(job => job.killedCause && job.killedCause !== "");
+    console.log(killedJobs);
+    console.log(killedJobs.length*1.0 / jobs.length*1.0);
+    return killedJobs.length*1.0 / jobs.length*1.0;
+  }
   
   componentDidMount() {
     fetch('http://localhost:8000/apps')
@@ -99,6 +106,9 @@ class App extends Component {
       this.setState({ jobs: data })
       this.setState({ completedJobCountHistory: this.updateCompletedJobHistory(data) })
       this.setState({ failedJobCountHistory: this.updateFailedJobHistory(data) })
+      this.setState({ killedJobsFraction: this.getJobsKilled(data) })
+      this.setState({ killedJobs: data.filter(job => job.killedCause && job.killedCause !== "") })
+      
     })
     .catch(console.log)
 
@@ -109,6 +119,13 @@ class App extends Component {
       this.setState({ completedExecutionCountHistory: this.updateCompletedExecutionHistory(data) })
     })
     .catch(console.log)
+
+    // fetch('http://localhost:8000/killed')
+    // .then(res => res.json())
+    // .then((data) => {
+    //   this.setState({ killed: data })
+    // })
+    // .catch(console.log)
 
 
   }
