@@ -1,7 +1,6 @@
 # Airavat
 [![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.png?v=103)](https://github.com/alivcor/airavat)
 [![Build Status](https://travis-ci.org/alivcor/airavat.svg?branch=master)](https://travis-ci.org/alivcor/airavat)
-<a href="https://github.com/alivcor/airavat">:octocat: Link to GitHub Repo</a>
 
 <p align="center">
 <img src="https://github.com/alivcor/airavat/raw/master/assets/airavat_logo.png" width="150px"/>
@@ -12,11 +11,17 @@ Airavat is a metric interceptor for Spark Applications. It also features an inte
 ![AiravatUI](ui/public/ui.png)
 
 
+<a href="https://github.com/alivcor/airavat">:octocat: Link to GitHub Repo</a>
 
+## Features
 
-## Getting Started
-
-This is a very basic implementation of SMOTE Algorithm in SparkML. This is the only available implementation which plugs in to Spark Pipelines.
+- :heavy_check_mark: Super-fast integration, just add the jar and you're good to go
+- :heavy_check_mark: Monitor Jobs, Queries and Executions
+- :heavy_check_mark: Collect Job Metrics such as Disk Spill, Shuffle Read Data, Result Size etc.
+- :heavy_check_mark: Collect Query Plans and view them on the UI
+- :heavy_check_mark: Set Limits / Thresholds for maximum shuffle / maximum result size / duration of a job.
+- :heavy_check_mark: Aggregate Data across all spark applications
+- :heavy_check_mark: Works with all spark application modes - local, yarn-client, cluster etc.
 
 
 ### Prerequisites
