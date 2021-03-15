@@ -144,7 +144,7 @@ Looking for contributors ! You are welcome to raise issues / send a pull-request
 
 I haven't been able to add comments to the code and a lot of the code here has been hastily written. Suggestions are welcome and pull requests are highly encouraged. 
 
-Link to ScalaDoc/JavaDoc can be found ![here](https://alivcor.github.io/airavat/#package)
+Link to ScalaDoc/JavaDoc can be found <a href="https://alivcor.github.io/airavat/#package">here</a>
 
 ## Authors
 
