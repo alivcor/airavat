@@ -146,6 +146,8 @@ Airavat uses <a href="http://scala-slick.org/" target="_blank">Slick - Functiona
 
 Out of the box Airavat uses SQLite - (my favorite and the simplest DB in the world!). However, this can be changed based on resource and capacity requirements. By default, airavat creates and uses `airavat_db` as Database identifier which is picked from `application.conf` (under `src/main/resources/` in the source code), you can add a db configuration there, and then set `spark.airavat.dbName` if your identifier is anything other than `airavat_db`
 
+### Configuring Settings
+
 The setting `spark.airavat.dbTimeoutSeconds` dictates the timeout for Airavat to persist the metrics/data to the DB on a Job End event. All actions are best-effort and never guaranteed. Timeout is set to 120 seconds by default.
 
 Airavat retains several maps which hold job and query info. Most of the elements are evicted from the map automatically. However, if jobs are not attached to a SQL, or are not evicted because of a failure, airavat periodically evicts the maps to avoid creating a huge memory profile. The setting `spark.airavat.maxJobRetain` dictates how many jobs airavat can persist at any given moment.
