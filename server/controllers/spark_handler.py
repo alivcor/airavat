@@ -20,9 +20,7 @@ class SparkController():
             .appName("AiravatServer") \
             .config(conf=self.sparkConf) \
             .getOrCreate()
-        netflix = self.spark.read.option("header", True).csv("/Users/abhinandandubey/Desktop/airavat/data/netflix_titles.csv")
-        netflix.show()
-        netflix.createOrReplaceTempView("netflix")
+
 
     def __deserialize(self, plan):
         plans = plan.split("\n\n")
