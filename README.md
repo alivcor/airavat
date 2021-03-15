@@ -79,7 +79,7 @@ val spark = SparkSession
 ```
 
 
-### Setting up Backend Server
+### Setting up the Backend Server
 
 
 #### 1. Install Dependencies
@@ -142,6 +142,9 @@ Currently, Airavat supports following limits:
 
 Looking for contributors ! You are welcome to raise issues / send a pull-request.
 
+I haven't been able to add comments to the code and a lot of the code here has been hastily written. Suggestions are welcome and pull requests are highly encouraged. 
+
+Link to ScalaDoc/JavaDoc can be found ![here](https://alivcor.github.io/airavat/#package)
 
 ## Authors
 
