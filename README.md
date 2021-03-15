@@ -2,15 +2,17 @@
 [![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.png?v=103)](https://github.com/alivcor/airavat)
 [![Build Status](https://travis-ci.org/alivcor/airavat.svg?branch=master)](https://travis-ci.org/alivcor/airavat)
 
+<p align="center">
+<img src="https://github.com/alivcor/airavat/raw/master/assets/airavat_logo.png"/>
+</p>
+
 Airavat is a metric interceptor for Spark Applications. It also features an interactive UI which shows all Spark Applications running, jobs and SQL Queries along with their metrics.
 
 ![AiravatUI](ui/public/ui.png)
 
 
 
-<p align="center">
-<img src="https://github.com/alivcor/airavat/raw/master/assets/airavat_logo.png" />
-</p>
+
 
 
 Implementation of SMOTE - Synthetic Minority Over-sampling Technique in SparkML / MLLib
