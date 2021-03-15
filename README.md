@@ -47,6 +47,8 @@ Airavat is a metric interceptor and a job watchdog for Spark Applications. It al
 
 #### 3. Test Run
 
+To test run, download the <a href="https://www.kaggle.com/shivamb/netflix-shows" target="_blank">Netflix Data CSV file from Kaggle</a> and place it under `data/` directory.
+
 ```bash
       sbt run
 ```
@@ -122,7 +124,9 @@ You can also run it with nohup as a daemon process `nohup main:app >> airavat_se
 ```
 
 
-## Configuring Limits
+### Configuration
+
+### Configuring Limits
 
 Currently, Airavat supports following limits:
 
@@ -136,6 +140,13 @@ Currently, Airavat supports following limits:
 - spark.airavat.maxTotalShuffleWriteBytes
 - spark.airavat.maxJobDuration
 
+### Configuring Database
+
+Airavat uses <a href="http://scala-slick.org/" target="_blank">Slick - Functional Relational Mapping for scala</a> which can be configured to be used with different Databases.
+
+Out of the box Airavat uses SQLite - (my favorite and the simplest DB in the world!). However, this can be changed based on resource and capacity requirements. By default, airavat creates and uses `airavat_db` as Database identifier which is picked from `application.conf` (under `src/main/resources/` in the source code), you can add a db configuration there, and then set `spark.airavat.dbName` if your identifier is anything other than `airavat_db`
+
+The setting `spark.airavat.dbTimeoutSeconds` dictates the timeout for Airavat to persist the metrics/data to the DB on a Job End event. All actions are best-effort and never guaranteed. Timeout is set to 120 seconds by default.
 
 
 ## Contributing
