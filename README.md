@@ -159,7 +159,7 @@ url = sqlite:////path/to/airavat.db
 
 The setting `spark.airavat.dbTimeoutSeconds` dictates the timeout for Airavat to persist the metrics/data to the DB on a Job End event. All actions are best-effort and never guaranteed. Timeout is set to 120 seconds by default.
 
-Airavat retains several maps which hold job and query info. Most of the elements are evicted from the map automatically. However, if jobs are not attached to a SQL, or are not evicted because of a failure, airavat periodically evicts the maps to avoid creating a huge memory profile. The setting `spark.airavat.maxJobRetain` dictates how many jobs airavat can persist at any given moment.
+Airavat retains several maps in memory which hold job and query info. Most of the elements are evicted from the map automatically. However, if jobs are not attached to a SQL, or are not evicted because of a failure, airavat periodically evicts the maps to avoid creating a huge memory profile. The setting `spark.airavat.maxJobRetain` dictates how many jobs airavat retains in memory at any given moment.
 
 ## Contributing
 
