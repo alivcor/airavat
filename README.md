@@ -20,8 +20,11 @@ Airavat is a metric interceptor and a job watchdog for Spark Applications. It al
 - :heavy_check_mark: Collect Job Metrics such as Disk Spill, Shuffle Read Data, Result Size etc.
 - :heavy_check_mark: Collect Query Plans and view them on the UI
 - :heavy_check_mark: Set Limits / Thresholds for maximum shuffle / maximum result size / duration of a job.
+- :heavy_check_mark: Kill potentially disruptive / resource hogging jobs before they impact the overall health and stability of your application.
+- :heavy_check_mark: Trace which jobs belong to which queries and have this information persisted for analysis even after your application shuts down.
 - :heavy_check_mark: Aggregate Data across all spark applications
 - :heavy_check_mark: Works with all spark application modes - local, yarn-client, cluster etc.
+- :heavy_check_mark: (Comping Soon) - Predict run times / duration for your spark queries!
 
 
 ### Prerequisites
