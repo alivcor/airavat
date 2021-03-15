@@ -24,7 +24,7 @@ Airavat is a metric interceptor and a job watchdog for Spark Applications. It al
 - :heavy_check_mark: Trace which jobs belong to which queries and have this information persisted for analysis even after your application shuts down.
 - :heavy_check_mark: Aggregate Data across all spark applications
 - :heavy_check_mark: Works with all spark application modes - local, yarn-client, cluster etc.
-- :heavy_check_mark: (Comping Soon) - Predict run times / duration for your spark queries!
+- :heavy_check_mark: (Coming Soon) - Predict run times / duration for your spark queries!
 
 
 ### Prerequisites
@@ -161,7 +161,7 @@ airavat_db = {
 
 The backend server however uses SQLAlchemy to establish database connections. Please make sure to point your backend server to also point to the same database as your Spark Application!
 
-The backend server uses a ConfigParser config file `config/server.conf`. Configure the SQLAlchemy URL to your database in teh config file.
+The backend server uses a config file `config/server.conf`. Configure the SQLAlchemy URL to your database in the config file.
 
 ```python
 [database]
