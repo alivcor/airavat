@@ -155,6 +155,18 @@ The backend server uses a ConfigParser config file `config/server.conf`. Configu
 url = sqlite:////path/to/airavat.db
 ```
 
+#### Using AWS DynamoDB as a sink
+
+DynamoDB can be used as a sink for Airavat. Set the SQLAlchemy URL as
+
+```python
+[database]
+url = amazondynamodb:///?Access Key=xxx&Secret Key=xxx&Domain=amazonaws.com&Region=OREGON
+```
+
+Optionally, you can add support to use <a href="https://github.com/pynamodb/PynamoDB">PynamoDB</a> which provides a richer interface
+
+ 
 ### Configuring Settings
 
 The setting `spark.airavat.dbTimeoutSeconds` dictates the timeout for Airavat to persist the metrics/data to the DB on a Job End event. All actions are best-effort and never guaranteed. Timeout is set to 120 seconds by default.
