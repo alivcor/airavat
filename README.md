@@ -122,6 +122,22 @@ You can also run it with nohup as a daemon process `nohup main:app >> airavat_se
 ```
 
 
+## Configuring Limits
+
+Currently, Airavat supports following limits:
+
+- spark.airavat.maxTotalDuration
+- spark.airavat.maxTotalTasks
+- spark.airavat.maxTotalDiskSpill
+- spark.airavat.maxTotalBytesRead
+- spark.airavat.maxTotalBytesWritten
+- spark.airavat.maxTotalResultSize
+- spark.airavat.maxTotalShuffleReadBytes
+- spark.airavat.maxTotalShuffleWriteBytes
+- spark.airavat.maxJobDuration
+
+
+
 ## Contributing
 
 Looking for contributors ! You are welcome to raise issues / send a pull-request.
