@@ -1,0 +1,20 @@
+# - name: RegEx Issue Labeler
+#   uses: github/issue-labeler@v2.2
+  
+# Add/remove 'critical' label if issue contains the words 'urgent' or 'critical'
+critical:
+    - '(critical|urgent)'
+    
+# Add/remove 'airavat-ui' label if issue contains the words 'ui' or 'dashboard' or 'react'
+airavat-ui:
+    - '(ui|dashboard|react|reactjs)'
+    
+# Add/remove 'airavat-server' label if issue contains the words 'server' or 'backend' or 'node'
+airavat-server:
+    - '(server|node|nodejs|backend)'
+    
+# Add/remove 'airavat-listener' label if issue contains the words 'listener'
+airavat-listener:
+    - '(listener)'
+    
+    
